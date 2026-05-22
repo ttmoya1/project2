@@ -1,4 +1,5 @@
 package com.gustavo.bolsaempleo.model;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -19,6 +20,6 @@ public class Caracteristica {
     @JoinColumn(name = "padre_id")
     private Caracteristica padre;
 
-    @OneToMany(mappedBy = "padre")
+    @OneToMany(mappedBy = "padre", fetch = FetchType.EAGER)
     private List<Caracteristica> hijos;
 }
