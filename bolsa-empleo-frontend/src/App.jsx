@@ -34,6 +34,7 @@ function RutaProtegida({ children, rol }) {
     return children;
 }
 
+
 export default function App() {
     return (
         <>
