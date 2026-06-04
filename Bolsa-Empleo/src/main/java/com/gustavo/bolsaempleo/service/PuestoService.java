@@ -66,9 +66,10 @@ public class PuestoService {
                 .stream().map(this::toResponse).toList();
     }
 
-    // Buscar puestos por características
+    // Buscar puestos públicos por características (búsqueda pública)
+    // FIX: ahora pasa el enum correctamente al repository
     public List<PuestoResponse> buscar(List<Integer> caracteristicaIds) {
-        return puestoRepository.buscarPorCaracteristicas(caracteristicaIds)
+        return puestoRepository.buscarPorCaracteristicas(caracteristicaIds, Puesto.TipoPuesto.PUBLICO)
                 .stream().map(this::toResponse).toList();
     }
 
@@ -77,6 +78,14 @@ public class PuestoService {
     public void desactivar(Integer puestoId, String correo) {
         Puesto puesto = puestoRepository.findById(puestoId)
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
+        // Verificar que el puesto pertenece a la empresa del usuario logueado
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Empresa empresa = empresaRepository.findByUsuarioId(usuario.getId())
+                .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
+        if (!puesto.getEmpresa().getId().equals(empresa.getId())) {
+            throw new RuntimeException("No tienes permiso para desactivar este puesto");
+        }
         puesto.setActivo(false);
         puestoRepository.save(puesto);
     }
