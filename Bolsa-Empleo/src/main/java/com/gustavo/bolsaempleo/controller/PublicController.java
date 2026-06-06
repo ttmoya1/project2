@@ -45,4 +45,12 @@ public class PublicController {
                 caracteristicaService.crear(nombre, padreId)
         );
     }
+    @GetMapping("/puestos/{id}")
+    public ResponseEntity<PuestoResponse> getPuesto(
+            @PathVariable Integer id
+    ) {
+        return ResponseEntity.ok(
+                puestoService.getById(id)
+        );
+    }
 }

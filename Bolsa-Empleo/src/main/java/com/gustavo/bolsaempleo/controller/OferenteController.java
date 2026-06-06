@@ -5,6 +5,7 @@ import com.gustavo.bolsaempleo.dto.OferenteHabilidadRequest;
 import com.gustavo.bolsaempleo.dto.OferenteRequest;
 import com.gustavo.bolsaempleo.model.Oferente;
 import com.gustavo.bolsaempleo.service.OferenteService;
+import com.gustavo.bolsaempleo.service.PostulacionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 public class OferenteController {
+
+    private final PostulacionService postulacionService;
 
     private final OferenteService oferenteService;
 
@@ -70,5 +73,27 @@ public class OferenteController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"curriculo.pdf\"")
                 .body(resource);
+    }
+
+    // Aplicar a un puesto
+    @PostMapping("/api/oferente/postular/{puestoId}")
+    public ResponseEntity<?> postular(
+            @PathVariable Integer puestoId,
+            Authentication auth
+    ) {
+
+        Oferente oferente =
+                oferenteService.getByUsuarioCorreo(
+                        auth.getName()
+                );
+
+        postulacionService.postular(
+                oferente.getId(),
+                puestoId
+        );
+
+        return ResponseEntity.ok(
+                "Postulación enviada"
+        );
     }
 }

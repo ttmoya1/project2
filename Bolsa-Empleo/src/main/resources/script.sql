@@ -109,3 +109,18 @@ INSERT INTO caracteristica (nombre, padre_id) VALUES ('Selenium', 4);
 USE bolsa_empleo;
 SHOW TABLES;
 SELECT * FROM usuario;
+
+CREATE TABLE postulacion (
+                             id INT AUTO_INCREMENT PRIMARY KEY,
+                             oferente_id INT NOT NULL,
+                             puesto_id INT NOT NULL,
+                             fecha_postulacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+                             FOREIGN KEY (oferente_id)
+                                 REFERENCES oferente(id),
+
+                             FOREIGN KEY (puesto_id)
+                                 REFERENCES puesto(id),
+
+                             UNIQUE (oferente_id, puesto_id)
+);

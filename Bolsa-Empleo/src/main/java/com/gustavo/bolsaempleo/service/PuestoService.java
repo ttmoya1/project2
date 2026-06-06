@@ -112,4 +112,14 @@ public class PuestoService {
         response.setCaracteristicas(cars);
         return response;
     }
+
+    @Transactional(readOnly = true)
+    public PuestoResponse getById(Integer id) {
+
+        Puesto puesto = puestoRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
+
+        return toResponse(puesto);
+    }
 }
