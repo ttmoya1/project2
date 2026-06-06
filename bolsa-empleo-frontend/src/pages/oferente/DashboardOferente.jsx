@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDashboardOferente } from "../../api/api";
+import { nivelLabel } from "../../utils/nivelUtils";
 
 export default function DashboardOferente() {
     const [oferente, setOferente] = useState(null);
@@ -23,7 +24,6 @@ export default function DashboardOferente() {
 
     return (
         <div className="page">
-            {/* Encabezado */}
             <div className="page-header">
                 <div>
                     <h1>Mi Panel</h1>
@@ -107,7 +107,7 @@ export default function DashboardOferente() {
                         <thead>
                         <tr>
                             <th>Habilidad</th>
-                            <th style={{ width: "100px" }}>Nivel</th>
+                            <th style={{ width: "130px" }}>Nivel</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -124,8 +124,6 @@ export default function DashboardOferente() {
         </div>
     );
 }
-
-/* ── Componentes auxiliares ── */
 
 function AccionCard({ titulo, descripcion, link, icono }) {
     return (
@@ -169,5 +167,5 @@ function Campo({ label, valor }) {
 function NivelBadge({ nivel }) {
     const n = Number(nivel);
     const color = n >= 4 ? "badge-green" : n >= 2 ? "badge-blue" : "badge-gray";
-    return <span className={`badge ${color}`}>Nivel {nivel}</span>;
+    return <span className={`badge ${color}`}>{nivelLabel(nivel)}</span>;
 }

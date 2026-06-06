@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { buscarCandidatos, getDetalleCandidato } from "../../api/api";
+import { nivelLabel } from "../../utils/nivelUtils";
 
 const BASE_URL = "http://localhost:8080";
 const getToken = () => localStorage.getItem("token");
@@ -70,7 +71,9 @@ function ModalDetalle({ candidato, onCerrar }) {
                         <p style={{ fontWeight: 600, marginBottom: 10, fontSize: 15 }}>Habilidades</p>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                             {candidato.habilidades.map((h) => (
-                                <span key={h.caracteristicaId} className="badge badge-blue">{h.caracteristicaNombre} — Nivel {h.nivel}</span>
+                                <span key={h.caracteristicaId} className="badge badge-blue">
+                                    {h.caracteristicaNombre} — {nivelLabel(h.nivel)}
+                                </span>
                             ))}
                         </div>
                     </div>
@@ -140,7 +143,7 @@ export default function Candidatos() {
     };
 
     if (loading) return <div className="page"><p className="msg-empty">Buscando candidatos...</p></div>;
-    if (error) return <div className="page"><p className="msg-error">{error}</p></div>;
+    if (error)   return <div className="page"><p className="msg-error">{error}</p></div>;
 
     return (
         <div className="page">
@@ -158,12 +161,12 @@ export default function Candidatos() {
 
             {candidatos.length === 0 ? (
                 <div className="card">
-                    <p className="msg-empty">No se encontraron candidatos que coincidan con los requisitos de este puesto.</p>
+                    <p className="msg-empty">No se encontraron candidatos que se hayan postulado a este puesto.</p>
                 </div>
             ) : (
                 <>
                     <p style={{ marginBottom: 16, color: "var(--color-text-secondary)", fontSize: 14 }}>
-                        {candidatos.length} candidato{candidatos.length !== 1 ? "s" : ""} encontrado{candidatos.length !== 1 ? "s" : ""}
+                        {candidatos.length} candidato{candidatos.length !== 1 ? "s" : ""} postulado{candidatos.length !== 1 ? "s" : ""}
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                         {candidatos.map((c) => (

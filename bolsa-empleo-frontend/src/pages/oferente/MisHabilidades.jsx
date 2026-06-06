@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { getCaracteristicasPublicas, getDashboardOferente, actualizarHabilidades } from "../../api/api";
+import { NIVELES, nivelLabel } from "../../utils/nivelUtils";
 
 export default function MisHabilidades() {
     const [arbol, setArbol] = useState([]);
-    const [seleccionadas, setSeleccionadas] = useState({}); // { caracteristicaId: nivel }
+    const [seleccionadas, setSeleccionadas] = useState({});
     const [cargando, setCargando] = useState(true);
     const [guardando, setGuardando] = useState(false);
     const [msg, setMsg] = useState({ tipo: "", texto: "" });
 
-    // Cargar árbol de características Y habilidades actuales del oferente
     useEffect(() => {
         Promise.all([
             getCaracteristicasPublicas().then(r => r.json()),
@@ -16,11 +16,9 @@ export default function MisHabilidades() {
         ])
             .then(([caracteristicas, oferente]) => {
                 setArbol(caracteristicas);
-
-                // Pre-cargar habilidades existentes
-                if (oferente.caracteristicas?.length > 0) {
+                if (oferente.habilidades?.length > 0) {
                     const previas = {};
-                    oferente.caracteristicas.forEach(c => {
+                    oferente.habilidades.forEach(c => {
                         const id = c.caracteristicaId ?? c.caracteristica?.id;
                         const nivel = c.nivel ?? c.nivelRequerido;
                         if (id) previas[id] = nivel;
@@ -35,11 +33,8 @@ export default function MisHabilidades() {
     const toggleCaracteristica = (id) => {
         setSeleccionadas(prev => {
             const nuevo = { ...prev };
-            if (nuevo[id] !== undefined) {
-                delete nuevo[id];
-            } else {
-                nuevo[id] = 1;
-            }
+            if (nuevo[id] !== undefined) delete nuevo[id];
+            else nuevo[id] = 1;
             return nuevo;
         });
     };
@@ -115,12 +110,10 @@ export default function MisHabilidades() {
     );
 }
 
-/* ── Grupo de características (padre + hijos) ── */
 function GrupoCaracteristica({ grupo, seleccionadas, onToggle, onNivel }) {
     const [expandido, setExpandido] = useState(true);
     const hijos = grupo.hijos ?? grupo.children ?? [];
 
-    // Si no tiene hijos, es una característica directa
     if (hijos.length === 0) {
         return (
             <FilaCaracteristica
@@ -134,7 +127,6 @@ function GrupoCaracteristica({ grupo, seleccionadas, onToggle, onNivel }) {
 
     return (
         <div className="card" style={{ padding: "1rem" }}>
-            {/* Encabezado del grupo */}
             <button
                 onClick={() => setExpandido(e => !e)}
                 style={{
@@ -173,7 +165,6 @@ function GrupoCaracteristica({ grupo, seleccionadas, onToggle, onNivel }) {
     );
 }
 
-/* ── Fila individual de característica con checkbox y selector de nivel ── */
 function FilaCaracteristica({ item, seleccionadas, onToggle, onNivel }) {
     const marcado = seleccionadas[item.id] !== undefined;
     const nivel = seleccionadas[item.id] ?? 1;
@@ -185,15 +176,12 @@ function FilaCaracteristica({ item, seleccionadas, onToggle, onNivel }) {
             background: marcado ? "var(--color-background-info)" : "transparent",
             transition: "background 0.15s",
         }}>
-            {/* Checkbox */}
             <input
                 type="checkbox"
                 checked={marcado}
                 onChange={() => onToggle(item.id)}
                 style={{ width: "15px", height: "15px", cursor: "pointer", flexShrink: 0 }}
             />
-
-            {/* Nombre */}
             <span style={{
                 flex: 1, fontSize: "13px",
                 color: marcado ? "var(--color-text-info)" : "var(--color-text-primary)",
@@ -202,18 +190,17 @@ function FilaCaracteristica({ item, seleccionadas, onToggle, onNivel }) {
                 {item.nombre}
             </span>
 
-            {/* Selector de nivel (solo si está marcado) */}
             {marcado && (
                 <select
                     value={nivel}
                     onChange={e => onNivel(item.id, e.target.value)}
                     style={{
-                        width: "70px", padding: "3px 6px", fontSize: "12px",
+                        width: "110px", padding: "3px 6px", fontSize: "12px",
                         borderColor: "var(--color-border-info)",
                     }}
                 >
-                    {[1, 2, 3, 4, 5].map(n => (
-                        <option key={n} value={n}>Nivel {n}</option>
+                    {NIVELES.map(n => (
+                        <option key={n.valor} value={n.valor}>{n.label}</option>
                     ))}
                 </select>
             )}
