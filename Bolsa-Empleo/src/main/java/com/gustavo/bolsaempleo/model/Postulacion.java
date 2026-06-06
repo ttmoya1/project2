@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
-@Table(name = "postulaciones")
+@Table(name = "postulacion")  // FIX: el script SQL crea la tabla como "postulacion" sin 'es'
 public class Postulacion {
 
     @Id
@@ -23,5 +24,4 @@ public class Postulacion {
     private Puesto puesto;
 
     private LocalDateTime fechaPostulacion;
-
 }

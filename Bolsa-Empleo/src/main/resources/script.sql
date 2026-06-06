@@ -124,3 +124,82 @@ CREATE TABLE postulacion (
 
                              UNIQUE (oferente_id, puesto_id)
 );
+USE bolsa_empleo;
+
+-- ============================================================
+--  Script para crear usuario administrador - Bolsa de Empleo
+-- ============================================================
+--  Credenciales:
+--    Correo:     admin@bolsa.com
+--    Contraseña: admin123
+-- ============================================================
+
+USE bolsa_empleo;
+
+-- Elimina el admin anterior si ya existe
+DELETE FROM usuario
+WHERE correo = 'admin@bolsa.com'
+  AND rol = 'ADMINISTRADOR';
+
+-- Inserta el administrador con hash BCrypt correcto de "admin123"
+INSERT INTO usuario (correo, clave, rol, activo)
+VALUES (
+           'admin@bolsa.com',
+           '$2b$10$NhECd30CM2GL/vYmnNL3LeeLstv6HWpWIFbQvFb5xQ/nX.zorWBpW',
+           'ADMINISTRADOR',
+           TRUE
+       );
+
+-- Confirma la creación
+SELECT id, correo, rol, activo, fecha_registro
+FROM usuario
+WHERE correo = 'admin@bolsa.com';
+
+-- ============================================================
+--  Administrador adicional con contraseña: admin
+-- ============================================================
+-- INSERT INTO usuario (correo, clave, rol, activo)
+-- VALUES (
+--     'admin2@bolsa.com',
+--     '$2b$10$QD09IV5nvaACTd6DDMbWVOOJej1CxAr4Z79u3AiTS7Cnrei.UvSCe',
+--     'ADMINISTRADOR',
+--     TRUE
+-- );-- ============================================================
+--  Script para crear usuario administrador - Bolsa de Empleo
+-- ============================================================
+--  Credenciales:
+--    Correo:     admin@bolsa.com
+--    Contraseña: admin123
+-- ============================================================
+
+USE bolsa_empleo;
+
+-- Elimina el admin anterior si ya existe
+DELETE FROM usuario
+WHERE correo = 'admin@bolsa.com'
+  AND rol = 'ADMINISTRADOR';
+
+-- Inserta el administrador con hash BCrypt correcto de "admin123"
+INSERT INTO usuario (correo, clave, rol, activo)
+VALUES (
+           'admin@bolsa.com',
+           '$2b$10$NhECd30CM2GL/vYmnNL3LeeLstv6HWpWIFbQvFb5xQ/nX.zorWBpW',
+           'ADMINISTRADOR',
+           TRUE
+       );
+
+-- Confirma la creación
+SELECT id, correo, rol, activo, fecha_registro
+FROM usuario
+WHERE correo = 'admin@bolsa.com';
+
+-- ============================================================
+--  Administrador adicional con contraseña: admin
+-- ============================================================
+-- INSERT INTO usuario (correo, clave, rol, activo)
+-- VALUES (
+--     'admin2@bolsa.com',
+--     '$2b$10$QD09IV5nvaACTd6DDMbWVOOJej1CxAr4Z79u3AiTS7Cnrei.UvSCe',
+--     'ADMINISTRADOR',
+--     TRUE
+-- );

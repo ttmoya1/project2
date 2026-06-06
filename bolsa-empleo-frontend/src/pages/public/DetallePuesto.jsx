@@ -1,128 +1,228 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { loginApi } from "../../api/api";
 
-export default function DetallePuesto() {
+// Modal de login inline
+function ModalLogin({ onLogin, onCerrar }) {
+    const [correo, setCorreo] = useState("");
+    const [clave, setClave] = useState("");
+    const [error, setError] = useState("");
+    const [cargando, setCargando] = useState(false);
+    const { login } = useAuth();
 
-    const { id } = useParams();
-
-    const [puesto, setPuesto] = useState(null);
-
-    useEffect(() => {
-
-        fetch(
-            `http://localhost:8080/api/public/puestos/${id}`
-        )
-            .then(r => r.json())
-            .then(setPuesto)
-            .catch(console.error);
-
-    }, [id]);
-
-    const aplicar = async () => {
-
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(""); setCargando(true);
         try {
-
-            const token = localStorage.getItem("token");
-
-            const response = await fetch(
-                `http://localhost:8080/api/oferente/postular/${id}`,
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error();
+            const res = await loginApi(correo, clave);
+            if (!res.ok) throw new Error("Credenciales incorrectas");
+            const data = await res.json();
+            if (data.rol !== "OFERENTE") {
+                setError("Solo oferentes pueden aplicar a puestos.");
+                return;
             }
-
-            alert("Aplicación enviada correctamente");
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert("No fue posible aplicar al puesto");
+            login(data);
+            onLogin();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setCargando(false);
         }
     };
 
-    if (!puesto) {
-        return (
-            <div style={{ padding: "2rem" }}>
-                Cargando...
+    return (
+        <div style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)",
+            zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+            <div style={{
+                background: "var(--color-background-primary)",
+                border: "0.5px solid var(--color-border-secondary)",
+                borderRadius: "var(--border-radius-lg)",
+                padding: "1.75rem 1.5rem", width: "300px",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+            }}>
+                <h2 style={{ fontSize: "16px", fontWeight: "500", marginBottom: "1rem" }}>
+                    Iniciá sesión para aplicar
+                </h2>
+                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <label style={{ fontSize: "12px", color: "var(--color-text-secondary)", fontWeight: "500" }}>Correo</label>
+                        <input type="email" value={correo} onChange={e => setCorreo(e.target.value)} required />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <label style={{ fontSize: "12px", color: "var(--color-text-secondary)", fontWeight: "500" }}>Clave</label>
+                        <input type="password" value={clave} onChange={e => setClave(e.target.value)} required />
+                    </div>
+                    {error && <p style={{ fontSize: "12px", color: "var(--color-text-danger)", margin: 0 }}>{error}</p>}
+                    <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                        <button type="button" onClick={onCerrar} style={{ flex: 1 }}>Cancelar</button>
+                        <button type="submit" disabled={cargando} style={{
+                            flex: 1, background: "var(--color-primary)", color: "#fff",
+                            border: "none", fontWeight: "500",
+                        }}>
+                            {cargando ? "Ingresando..." : "Ingresar"}
+                        </button>
+                    </div>
+                </form>
             </div>
-        );
-    }
+        </div>
+    );
+}
+
+export default function DetallePuesto() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { auth } = useAuth();
+
+    const [puesto, setPuesto] = useState(null);
+    const [cargando, setCargando] = useState(true);
+    const [aplicando, setAplicando] = useState(false);
+    const [msg, setMsg] = useState({ tipo: "", texto: "" });
+    const [mostrarLogin, setMostrarLogin] = useState(false);
+
+    useEffect(() => {
+        fetch(`http://localhost:8080/api/public/puestos/${id}`)
+            .then((r) => {
+                if (!r.ok) throw new Error("Puesto no encontrado");
+                return r.json();
+            })
+            .then(setPuesto)
+            .catch(() => setMsg({ tipo: "error", texto: "No se pudo cargar el puesto." }))
+            .finally(() => setCargando(false));
+    }, [id]);
+
+    const doAplicar = async (token) => {
+        setAplicando(true);
+        setMsg({ tipo: "", texto: "" });
+        try {
+            const res = await fetch(
+                `http://localhost:8080/api/oferente/postular/${id}`,
+                { method: "POST", headers: { Authorization: `Bearer ${token}` } }
+            );
+            const texto = await res.text();
+            if (!res.ok) {
+                if (texto.includes("Ya aplicó")) {
+                    setMsg({ tipo: "info", texto: "Ya habías aplicado a este puesto anteriormente." });
+                } else {
+                    throw new Error(texto || "Error al postular");
+                }
+                return;
+            }
+            setMsg({ tipo: "success", texto: "¡Postulación enviada correctamente!" });
+        } catch (err) {
+            setMsg({ tipo: "error", texto: err.message || "No se pudo enviar la postulación." });
+        } finally {
+            setAplicando(false);
+        }
+    };
+
+    const aplicar = () => {
+        if (!auth) { setMostrarLogin(true); return; }
+        if (auth.rol !== "OFERENTE") {
+            setMsg({ tipo: "info", texto: "Solo los oferentes pueden aplicar a puestos." });
+            return;
+        }
+        doAplicar(auth.token);
+    };
+
+    // Después de login exitoso en el modal, aplicar automáticamente
+    const handleLoginExitoso = () => {
+        setMostrarLogin(false);
+        const token = localStorage.getItem("token");
+        doAplicar(token);
+    };
+
+    const niveles = ["", "Básico", "Intermedio", "Avanzado", "Experto", "Master"];
+
+    if (cargando) return <div className="page"><p className="msg-empty">Cargando...</p></div>;
+
+    if (!puesto) return (
+        <div className="page">
+            <p className="msg-error">{msg.texto}</p>
+            <button onClick={() => navigate(-1)} style={{ marginTop: "1rem" }}>← Volver</button>
+        </div>
+    );
 
     return (
-        <div
-            style={{
-                maxWidth: "1000px",
-                margin: "2rem auto",
-                padding: "0 1rem"
-            }}
-        >
-            <div
-                style={{
-                    background: "#fff",
-                    borderRadius: "12px",
-                    padding: "2rem",
-                    boxShadow: "0 2px 10px rgba(0,0,0,.1)"
-                }}
-            >
-                <h1>{puesto.empresaNombre}</h1>
+        <div className="page" style={{ maxWidth: "720px" }}>
+            {mostrarLogin && (
+                <ModalLogin
+                    onLogin={handleLoginExitoso}
+                    onCerrar={() => setMostrarLogin(false)}
+                />
+            )}
 
-                <h2>{puesto.descripcion}</h2>
+            <button onClick={() => navigate(-1)} style={{
+                marginBottom: "1.5rem", background: "none", border: "none",
+                color: "var(--color-text-secondary)", cursor: "pointer", fontSize: "14px", padding: 0,
+            }}>
+                ← Volver
+            </button>
 
-                <p>
-                    <strong>Salario:</strong>{" "}
+            <div className="card" style={{ marginBottom: "1rem" }}>
+                <p style={{ fontSize: "13px", color: "var(--color-text-secondary)", marginBottom: "4px" }}>
+                    {puesto.empresaNombre}
+                </p>
+                <h1 style={{ fontSize: "20px", marginBottom: "8px" }}>{puesto.descripcion}</h1>
+                <p style={{ fontSize: "18px", fontWeight: "600", color: "var(--color-text-info)", marginBottom: "12px" }}>
                     ₡ {Number(puesto.salario).toLocaleString("es-CR")}
                 </p>
+                <div style={{ display: "flex", gap: "8px" }}>
+          <span className={`badge ${puesto.tipo === "PUBLICO" ? "badge-blue" : "badge-gray"}`}>
+            {puesto.tipo === "PUBLICO" ? "Público" : "Privado"}
+          </span>
+                </div>
+            </div>
 
-                <hr />
+            {puesto.caracteristicas && puesto.caracteristicas.length > 0 && (
+                <div className="card" style={{ marginBottom: "1rem" }}>
+                    <h2 style={{ fontSize: "16px", marginBottom: "1rem" }}>Requisitos del puesto</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {puesto.caracteristicas.map((c, i) => (
+                            <div key={i} style={{
+                                display: "flex", justifyContent: "space-between", alignItems: "center",
+                                padding: "10px 12px", background: "var(--color-background-secondary)",
+                                borderRadius: "var(--border-radius-md)",
+                            }}>
+                                <span style={{ fontSize: "14px", fontWeight: "500" }}>{c.caracteristicaNombre}</span>
+                                <span className="badge badge-blue">
+                  Nivel {c.nivelRequerido} — {niveles[c.nivelRequerido] || ""}
+                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
-                <h3>Requisitos del puesto</h3>
-
-                {puesto.caracteristicas?.map((c, index) => (
-                    <div
-                        key={index}
+            {/* Botón aplicar + mensajes debajo */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-start" }}>
+                {msg.tipo !== "success" && (
+                    <button
+                        onClick={aplicar}
+                        disabled={aplicando}
                         style={{
-                            marginBottom: "15px",
-                            padding: "12px",
-                            border: "1px solid #ddd",
-                            borderRadius: "8px"
+                            padding: "12px 28px",
+                            background: aplicando ? "var(--color-text-secondary)" : "var(--color-primary)",
+                            color: "#fff", border: "none",
+                            borderRadius: "var(--border-radius-md)",
+                            cursor: aplicando ? "not-allowed" : "pointer",
+                            fontWeight: "700", fontSize: "15px",
                         }}
                     >
-                        <div>
-                            <strong>
-                                {c.caracteristicaNombre}
-                            </strong>
-                        </div>
+                        {aplicando ? "Enviando..." : "Aplicar al puesto"}
+                    </button>
+                )}
 
-                        <div>
-                            Nivel requerido:
-                            {" "}
-                            {c.nivelRequerido}
-                        </div>
-                    </div>
-                ))}
-
-                <button
-                    onClick={aplicar}
-                    style={{
-                        marginTop: "20px",
-                        padding: "12px 20px",
-                        border: "none",
-                        borderRadius: "8px",
-                        background: "#2563eb",
-                        color: "#fff",
-                        cursor: "pointer"
-                    }}
-                >
-                    Aplicar al puesto
-                </button>
+                {msg.texto && (
+                    <p className={
+                        msg.tipo === "error" ? "msg-error" :
+                            msg.tipo === "success" ? "msg-success" : "msg-empty"
+                    } style={{ margin: 0 }}>
+                        {msg.texto}
+                    </p>
+                )}
             </div>
         </div>
     );

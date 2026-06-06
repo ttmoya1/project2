@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +28,9 @@ public class OferenteService {
     private final OferenteCaracteristicaRepository oferenteCaracteristicaRepository;
     private final PuestoRepository puestoRepository;
     private final PuestoCaracteristicaRepository puestoCaracteristicaRepository;
+    private final PostulacionRepository postulacionRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Directorio donde se guardan los CVs
     private static final String UPLOAD_DIR = "curriculos/";
 
     // ── Registro ──────────────────────────────────────────────────────────────
@@ -112,7 +111,6 @@ public class OferenteService {
     }
 
     // ── Currículo PDF ─────────────────────────────────────────────────────────
-
     @Transactional
     public void subirCurriculo(String correo, MultipartFile archivo) {
         if (archivo.isEmpty())
@@ -123,19 +121,13 @@ public class OferenteService {
         Oferente oferente = getByUsuarioCorreo(correo);
 
         try {
-            // Crear directorio si no existe
             Path dir = Paths.get(UPLOAD_DIR);
             if (!Files.exists(dir)) Files.createDirectories(dir);
-
-            // Nombre único por oferente: curriculo_{id}.pdf
             String nombreArchivo = "curriculo_" + oferente.getId() + ".pdf";
             Path destino = dir.resolve(nombreArchivo);
             Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
-
-            // Guardar ruta en BD
             oferente.setCurriculumPdf(nombreArchivo);
             oferenteRepository.save(oferente);
-
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar el archivo: " + e.getMessage());
         }
@@ -166,35 +158,17 @@ public class OferenteService {
         }
     }
 
-    // ── Candidatos ────────────────────────────────────────────────────────────
+    // ── Candidatos por puesto ─────────────────────────────────────────────────
+    // Devuelve TODOS los oferentes que se postularon al puesto
     public List<CandidatoResponse> buscarCandidatosPorPuesto(Integer puestoId) {
         puestoRepository.findById(puestoId)
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
 
-        List<PuestoCaracteristica> requisitos =
-                puestoCaracteristicaRepository.findByPuestoId(puestoId);
-        if (requisitos.isEmpty()) return List.of();
+        List<Postulacion> postulaciones = postulacionRepository.findByPuestoId(puestoId);
 
-        Set<Integer> candidatosIds = null;
-        for (PuestoCaracteristica req : requisitos) {
-            List<Oferente> candidatos = oferenteCaracteristicaRepository
-                    .buscarOferentesPorHabilidad(
-                            req.getCaracteristica().getId(),
-                            req.getNivelRequerido());
-            Set<Integer> ids = candidatos.stream().map(Oferente::getId).collect(Collectors.toSet());
-            if (candidatosIds == null) candidatosIds = new HashSet<>(ids);
-            else candidatosIds.retainAll(ids);
-        }
-
-        if (candidatosIds == null || candidatosIds.isEmpty()) return List.of();
-
-        List<CandidatoResponse> resultado = new ArrayList<>();
-        for (Integer oid : candidatosIds) {
-            Oferente o = oferenteRepository.findById(oid).orElse(null);
-            if (o == null) continue;
-            resultado.add(buildCandidatoResponse(o));
-        }
-        return resultado;
+        return postulaciones.stream()
+                .map(p -> buildCandidatoResponse(p.getOferente()))
+                .toList();
     }
 
     @Transactional(readOnly = true)
