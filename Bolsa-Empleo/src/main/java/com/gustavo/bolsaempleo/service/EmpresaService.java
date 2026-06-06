@@ -66,4 +66,17 @@ public class EmpresaService {
         usuarioRepository.save(empresa.getUsuario());
         return empresaRepository.save(empresa);
     }
+
+    @Transactional
+    public void rechazar(Integer id) {
+
+        Empresa empresa = empresaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
+
+        empresaRepository.delete(empresa);
+    }
+
+    public List<Empresa> getTodas() {
+        return empresaRepository.findAll();
+    }
 }

@@ -13,6 +13,7 @@ public class CandidatoResponse {
     private String telefono;
     private String lugarResidencia;
     private String correo;
+    private boolean tieneCurriculo;
     private List<HabilidadDTO> habilidades;
 
     @Data

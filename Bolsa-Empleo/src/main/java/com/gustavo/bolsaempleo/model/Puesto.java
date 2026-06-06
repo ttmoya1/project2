@@ -31,7 +31,7 @@ public class Puesto {
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "puesto", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "puesto", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PuestoCaracteristica> caracteristicas;
 
     public enum TipoPuesto {

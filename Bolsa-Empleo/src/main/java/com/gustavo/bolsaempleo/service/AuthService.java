@@ -31,7 +31,10 @@ public class AuthService {
         System.out.println(">>> Password OK");
 
         if (!usuario.getActivo()) {
-            throw new RuntimeException("Usuario pendiente de aprobación");
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN,
+                    "Usuario pendiente de aprobación"
+            );
         }
 
         String token = jwtUtil.generateToken(usuario.getCorreo(), usuario.getRol().name());

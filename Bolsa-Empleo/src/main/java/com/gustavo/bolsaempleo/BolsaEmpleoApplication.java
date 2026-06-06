@@ -9,4 +9,4 @@ public class BolsaEmpleoApplication {
     public static void main(String[] args) {
         SpringApplication.run(BolsaEmpleoApplication.class, args);
     }
-}
+}   

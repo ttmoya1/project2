@@ -59,4 +59,27 @@ public class AdminController {
                 (Integer) body.get("padreId") : null;
         return ResponseEntity.ok(caracteristicaService.crear(nombre, padreId));
     }
+
+    @DeleteMapping("/empresas/{id}/rechazar")
+    public ResponseEntity<?> rechazarEmpresa(@PathVariable Integer id) {
+        empresaService.rechazar(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/empresas")
+    public ResponseEntity<List<Empresa>> getEmpresas() {
+        return ResponseEntity.ok(empresaService.getTodas());
+    }
+
+    @GetMapping("/oferentes")
+    public ResponseEntity<List<Oferente>> getOferentes() {
+        return ResponseEntity.ok(oferenteService.getTodos());
+    }
+
+    @DeleteMapping("/oferentes/{id}/rechazar")
+    public ResponseEntity<Void> rechazarOferente(@PathVariable Integer id) {
+        oferenteService.rechazar(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

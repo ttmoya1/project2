@@ -25,6 +25,7 @@ import GestionCaracteristicas from "./pages/admin/GestionCaracteristicas";
 
 // Componentes
 import Navbar from "./components/Navbar";
+import MiCurriculo from "./pages/oferente/MiCurriculo.jsx";
 
 // Ruta protegida por rol
 function RutaProtegida({ children, rol }) {
@@ -80,6 +81,12 @@ export default function App() {
                 } />
                 <Route path="/admin/caracteristicas" element={
                     <RutaProtegida rol="ADMINISTRADOR"><GestionCaracteristicas /></RutaProtegida>
+                } />
+                <Route path="/oferente/curriculo" element={
+                    <RutaProtegida rol="OFERENTE"><MiCurriculo /></RutaProtegida>
+                } />
+                <Route path="/oferente/curriculo" element={
+                    <RutaProtegida rol="OFERENTE"><MiCurriculo /></RutaProtegida>
                 } />
             </Routes>
         </>

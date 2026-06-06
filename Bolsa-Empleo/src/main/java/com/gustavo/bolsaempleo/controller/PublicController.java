@@ -35,4 +35,14 @@ public class PublicController {
     public ResponseEntity<List<CaracteristicaDTO>> getCaracteristicas() {
         return ResponseEntity.ok(caracteristicaService.getArbol());
     }
+
+    @PostMapping("/caracteristicas")
+    public ResponseEntity<?> crearCaracteristica(
+            @RequestParam String nombre,
+            @RequestParam(required = false) Integer padreId
+    ) {
+        return ResponseEntity.ok(
+                caracteristicaService.crear(nombre, padreId)
+        );
+    }
 }

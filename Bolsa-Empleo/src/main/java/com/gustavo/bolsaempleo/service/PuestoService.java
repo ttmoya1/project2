@@ -36,7 +36,6 @@ public class PuestoService {
         puesto.setActivo(true);
         puestoRepository.save(puesto);
 
-        // Guardar características requeridas
         for (PuestoRequest.CaracteristicaNivelDTO c : request.getCaracteristicas()) {
             Caracteristica caracteristica = caracteristicaRepository.findById(c.getCaracteristicaId())
                     .orElseThrow(() -> new RuntimeException("Característica no encontrada"));
@@ -49,14 +48,16 @@ public class PuestoService {
         return puesto;
     }
 
-    // 5 puestos públicos más recientes para la página principal
+    // 5 puestos públicos más recientes — FIX: @Transactional para que caracteristicas cargue
+    @Transactional(readOnly = true)
     public List<PuestoResponse> getPublicosRecientes() {
         List<Puesto> puestos = puestoRepository
                 .findTop5ByTipoAndActivoTrueOrderByFechaRegistroDesc(Puesto.TipoPuesto.PUBLICO);
         return puestos.stream().map(this::toResponse).toList();
     }
 
-    // Puestos de la empresa logueada
+    // Puestos de la empresa logueada — FIX: @Transactional
+    @Transactional(readOnly = true)
     public List<PuestoResponse> getMisPuestos(String correo) {
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -66,8 +67,8 @@ public class PuestoService {
                 .stream().map(this::toResponse).toList();
     }
 
-    // Buscar puestos públicos por características (búsqueda pública)
-    // FIX: ahora pasa el enum correctamente al repository
+    // Buscar puestos públicos por características — FIX: @Transactional
+    @Transactional(readOnly = true)
     public List<PuestoResponse> buscar(List<Integer> caracteristicaIds) {
         return puestoRepository.buscarPorCaracteristicas(caracteristicaIds, Puesto.TipoPuesto.PUBLICO)
                 .stream().map(this::toResponse).toList();
@@ -78,7 +79,6 @@ public class PuestoService {
     public void desactivar(Integer puestoId, String correo) {
         Puesto puesto = puestoRepository.findById(puestoId)
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
-        // Verificar que el puesto pertenece a la empresa del usuario logueado
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         Empresa empresa = empresaRepository.findByUsuarioId(usuario.getId())
