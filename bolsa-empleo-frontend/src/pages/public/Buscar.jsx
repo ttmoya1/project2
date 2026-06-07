@@ -3,20 +3,20 @@ import { buscarPuestosPublicos, getCaracteristicasPublicas } from "../../api/api
 
 const NIVELES = ["", "Básico", "Intermedio", "Avanzado", "Experto", "Máster"];
 
-// Recoge todos los ids de un nodo y sus descendientes
+
 function recogerIds(nodo) {
     const ids = [nodo.id];
     if (nodo.hijos) nodo.hijos.forEach((h) => ids.push(...recogerIds(h)));
     return ids;
 }
 
-// Verifica si todos los hijos de un nodo están seleccionados
+
 function todosHijosSeleccionados(nodo, seleccionados) {
     if (!nodo.hijos || nodo.hijos.length === 0) return seleccionados.includes(nodo.id);
     return nodo.hijos.every((h) => todosHijosSeleccionados(h, seleccionados));
 }
 
-// Verifica si algún hijo está seleccionado (indeterminado)
+
 function algunHijoSeleccionado(nodo, seleccionados) {
     if (!nodo.hijos || nodo.hijos.length === 0) return seleccionados.includes(nodo.id);
     return nodo.hijos.some((h) => algunHijoSeleccionado(h, seleccionados));
@@ -240,14 +240,14 @@ export default function Buscar() {
             .finally(() => setCargandoFiltros(false));
     }, []);
 
-    // Marcar/desmarcar un nodo hoja individual
+
     const toggleSeleccion = (id) => {
         setSeleccionados((prev) =>
             prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
         );
     };
 
-    // Marcar/desmarcar un grupo completo (padre + todos sus descendientes)
+
     const toggleGrupo = (nodo, marcar) => {
         const ids = recogerIds(nodo);
         setSeleccionados((prev) => {

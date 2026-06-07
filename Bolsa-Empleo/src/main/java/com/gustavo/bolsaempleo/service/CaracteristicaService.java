@@ -15,14 +15,14 @@ public class CaracteristicaService {
 
     private final CaracteristicaRepository caracteristicaRepository;
 
-    // Traer todas en forma de árbol
+
     @Transactional(readOnly = true)
     public List<CaracteristicaDTO> getArbol() {
         List<Caracteristica> raices = caracteristicaRepository.findByPadreIsNull();
         return raices.stream().map(this::toDTO).toList();
     }
 
-    // Crear nueva característica
+
     public Caracteristica crear(String nombre, Integer padreId) {
         Caracteristica c = new Caracteristica();
         c.setNombre(nombre);

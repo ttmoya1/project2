@@ -31,17 +31,17 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Extrae el correo del token
+
     public String getCorreo(String token) {
         return getClaims(token).getSubject();
     }
 
-    // Extrae el rol del token
+
     public String getRol(String token) {
         return getClaims(token).get("rol", String.class);
     }
 
-    // Valida que el token sea correcto y no haya expirado
+
     public boolean validateToken(String token) {
         try {
             getClaims(token);

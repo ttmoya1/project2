@@ -17,7 +17,7 @@
     --color-danger: #dc2626;
     --color-success: #16a34a;
 
-    /* Aliases que usan los componentes */
+
     --color-background-primary: #ffffff;
     --color-background-secondary: #f8fafc;
     --color-background-tertiary: #f1f5f9;
@@ -59,13 +59,13 @@ body {
     min-height: 100vh;
 }
 
-/* ── Tipografía ── */
+
 h1 { font-size: 1.375rem; font-weight: 500; color: var(--color-text-primary); }
 h2 { font-size: 1.125rem; font-weight: 500; color: var(--color-text-primary); }
 h3 { font-size: 0.95rem;  font-weight: 500; color: var(--color-text-primary); }
 p  { color: var(--color-text-secondary); font-size: 0.875rem; }
 
-/* ── Botones — reset limpio, sin forzar azul global ── */
+
 button {
     display: inline-flex;
     align-items: center;
@@ -89,7 +89,7 @@ button:hover:not(:disabled) {
 }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* Variante primaria (azul) — aplicar clase .btn-primary */
+
 button.btn-primary,
 button[data-primary] {
     background: var(--color-primary);
@@ -109,7 +109,7 @@ button.danger {
 }
 button.danger:hover:not(:disabled) { background: #b91c1c; border-color: #b91c1c; }
 
-/* ── Inputs ── */
+
 input, textarea, select {
     width: 100%;
     padding: 7px 11px;
@@ -128,7 +128,7 @@ input:focus, textarea:focus, select:focus {
 }
 textarea { resize: vertical; min-height: 80px; }
 
-/* ── Página ── */
+
 .page {
     max-width: 1100px;
     margin: 0 auto;
@@ -143,7 +143,7 @@ textarea { resize: vertical; min-height: 80px; }
     flex-wrap: wrap;
 }
 
-/* ── Cards genéricas ── */
+
 .card {
     background: var(--color-background-primary);
     border: 0.5px solid var(--color-border-tertiary);
@@ -153,14 +153,14 @@ textarea { resize: vertical; min-height: 80px; }
 }
 .card:hover { border-color: var(--color-border-secondary); box-shadow: var(--shadow-md); }
 
-/* ── Grid de cards ── */
+
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 1rem;
 }
 
-/* ── Badges ── */
+
 .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; }
 .badge-blue   { background: #dbeafe; color: #1d4ed8; }
 .badge-green  { background: #dcfce7; color: #15803d; }
@@ -168,7 +168,7 @@ textarea { resize: vertical; min-height: 80px; }
 .badge-gray   { background: #f1f5f9; color: #475569; }
 .badge-amber  { background: #fef3c7; color: #b45309; }
 
-/* ── Tabla ── */
+
 table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 thead tr { border-bottom: 1px solid var(--color-border); }
 tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); transition: background 0.1s; }
@@ -176,16 +176,16 @@ tbody tr:hover { background: var(--color-background-secondary); }
 th { padding: 10px 12px; text-align: left; font-weight: 500; color: var(--color-text-secondary); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
 td { padding: 11px 12px; color: var(--color-text-primary); font-size: 0.875rem; }
 
-/* ── Formulario ── */
+
 .form-group { display: flex; flex-direction: column; gap: 4px; }
 .form-group label { font-size: 0.8rem; font-weight: 500; color: var(--color-text-secondary); }
 
-/* ── Mensajes ── */
+
 .msg-error   { color: var(--color-text-danger); font-size: 0.85rem; padding: 8px 12px; background: var(--color-background-danger); border-radius: var(--border-radius-md); }
 .msg-success { color: var(--color-text-success); font-size: 0.85rem; padding: 8px 12px; background: var(--color-background-success); border-radius: var(--border-radius-md); }
 .msg-empty   { text-align: center; padding: 3rem; color: var(--color-text-tertiary); font-size: 0.9rem; }
 
-/* ── Modal ── */
+
 .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.4);
@@ -203,7 +203,7 @@ td { padding: 11px 12px; color: var(--color-text-primary); font-size: 0.875rem; 
 }
 .modal h2 { margin-bottom: 1rem; }
 
-/* ── Inicio: tarjetas de puestos ── */
+
 .inicio-wrapper { display: flex; flex-direction: column; min-height: calc(100vh - 52px); }
 .inicio-wrapper .page { flex: 1; }
 
@@ -249,7 +249,7 @@ td { padding: 11px 12px; color: var(--color-text-primary); font-size: 0.875rem; 
 .tooltip-lista li { display: flex; align-items: baseline; gap: 5px; font-size: 0.8rem; color: var(--color-text-primary); }
 .tooltip-nivel  { font-size: 0.72rem; color: var(--color-text-secondary); }
 
-/* ── Footer ── */
+
 .site-footer {
     background: var(--color-background-primary);
     border-top: 0.5px solid var(--color-border-tertiary);
@@ -263,16 +263,16 @@ td { padding: 11px 12px; color: var(--color-text-primary); font-size: 0.875rem; 
 .footer-left, .footer-right { display: flex; flex-direction: column; gap: 1px; font-size: 0.78rem; color: var(--color-text-secondary); }
 .footer-left strong { font-size: 0.8rem; font-weight: 500; color: var(--color-text-primary); }
 
-/* ── Scrollbar ── */
+
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border-tertiary); border-radius: 3px; }
 
-/* ── Links ── */
+
 a { color: var(--color-text-info); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* ── Utilidades ── */
+
 .text-muted  { color: var(--color-text-secondary); }
 .text-small  { font-size: 0.8rem; }
 .text-danger { color: var(--color-text-danger); }

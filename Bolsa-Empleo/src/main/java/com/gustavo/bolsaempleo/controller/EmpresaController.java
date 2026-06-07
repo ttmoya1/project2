@@ -42,21 +42,21 @@ public class EmpresaController {
         return ResponseEntity.ok(puestoService.getMisPuestos(auth.getName()));
     }
 
-    // Hacer el puesto PRIVADO (visible solo para oferentes registrados)
+
     @PutMapping("/api/empresa/puestos/{id}/privado")
     public ResponseEntity<?> hacerPrivado(@PathVariable Integer id, Authentication auth) {
         puestoService.hacerPrivado(id, auth.getName());
         return ResponseEntity.ok("Puesto cambiado a privado");
     }
 
-    // Hacer el puesto PÚBLICO (visible para todos)
+
     @PutMapping("/api/empresa/puestos/{id}/publico")
     public ResponseEntity<?> hacerPublico(@PathVariable Integer id, Authentication auth) {
         puestoService.hacerPublico(id, auth.getName());
         return ResponseEntity.ok("Puesto cambiado a público");
     }
 
-    // Desactivar completamente (ya se cubrió la vacante)
+
     @PutMapping("/api/empresa/puestos/{id}/desactivar")
     public ResponseEntity<?> desactivar(@PathVariable Integer id, Authentication auth) {
         puestoService.desactivar(id, auth.getName());

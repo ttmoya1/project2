@@ -19,7 +19,7 @@ public class EmpresaService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Registro de nueva empresa
+
     @Transactional
     public Empresa registrar(EmpresaRequest request) {
         if (usuarioRepository.existsByCorreo(request.getCorreo())) {
@@ -43,7 +43,7 @@ public class EmpresaService {
         return empresaRepository.save(empresa);
     }
 
-    // Obtener empresa por usuario logueado
+
     public Empresa getByUsuarioCorreo(String correo) {
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -51,12 +51,12 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
     }
 
-    // Listar empresas pendientes de aprobación
+
     public List<Empresa> getPendientes() {
         return empresaRepository.findByAprobadaFalse();
     }
 
-    // Aprobar empresa
+
     @Transactional
     public Empresa aprobar(Integer id) {
         Empresa empresa = empresaRepository.findById(id)

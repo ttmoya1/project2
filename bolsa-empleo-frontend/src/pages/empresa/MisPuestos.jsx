@@ -21,7 +21,7 @@ const nivelLabel = (n) => NIVELES.find((x) => x.valor === Number(n))?.label ?? `
 const BASE_URL = "http://localhost:8080";
 const getToken = () => localStorage.getItem("token");
 
-// ─── Árbol recursivo para el modal de edición ───────────────────────────────
+
 function FilaCaracteristicaEditar({ nodo, seleccionadas, onToggle, onNivel, profundidad = 0 }) {
     const [expandido, setExpandido] = useState(true);
     const tieneHijos = nodo.hijos && nodo.hijos.length > 0;
@@ -131,7 +131,7 @@ function FilaCaracteristicaEditar({ nodo, seleccionadas, onToggle, onNivel, prof
     );
 }
 
-// ─── Modal de edición ────────────────────────────────────────────────────────
+
 function ModalEditar({ puesto, onCerrar, onGuardado }) {
     const [descripcion, setDescripcion] = useState(puesto.descripcion || "");
     const [salario, setSalario] = useState(puesto.salario?.toString() || "");
@@ -191,7 +191,7 @@ function ModalEditar({ puesto, onCerrar, onGuardado }) {
 
             const token = getToken();
 
-            // 1. Cambiar tipo si difiere
+
             if (tipo !== puesto.tipo) {
                 const urlTipo = tipo === "PUBLICO"
                     ? `${BASE_URL}/api/empresa/puestos/${puesto.id}/publico`
@@ -202,7 +202,7 @@ function ModalEditar({ puesto, onCerrar, onGuardado }) {
                 });
             }
 
-            // 2. Editar descripción, salario y características via PUT completo
+
             const res = await fetch(`${BASE_URL}/api/empresa/puestos/${puesto.id}`, {
                 method: "PUT",
                 headers: {
@@ -213,7 +213,7 @@ function ModalEditar({ puesto, onCerrar, onGuardado }) {
             });
 
             if (!res.ok) {
-                // Si el backend no tiene ese endpoint aún, mostramos aviso útil
+
                 if (res.status === 405 || res.status === 404) {
                     throw new Error("El servidor aún no soporta edición completa. Solo se puede cambiar el tipo de visibilidad por ahora.");
                 }
@@ -431,7 +431,7 @@ function ModalEditar({ puesto, onCerrar, onGuardado }) {
     );
 }
 
-// ─── Tarjeta de puesto ────────────────────────────────────────────────────────
+
 function TarjetaPuesto({ puesto, procesando, onCambiarVisibilidad, onDesactivar, onVerCandidatos, onEditar }) {
     const esPublico = puesto.tipo === "PUBLICO";
     const estaActivo = puesto.activo;
@@ -497,7 +497,7 @@ function TarjetaPuesto({ puesto, procesando, onCambiarVisibilidad, onDesactivar,
                             opacity: procesando ? 0.6 : 1,
                         }}
                     >
-                        ✏️ Editar
+                         Editar
                     </button>
                 )}
 
@@ -541,7 +541,7 @@ function TarjetaPuesto({ puesto, procesando, onCambiarVisibilidad, onDesactivar,
     );
 }
 
-// ─── Página principal ─────────────────────────────────────────────────────────
+
 export default function MisPuestos() {
     const navigate = useNavigate();
     const [puestos, setPuestos] = useState([]);
@@ -593,7 +593,7 @@ export default function MisPuestos() {
 
     const handleGuardado = () => {
         setPuestoEditando(null);
-        cargar(); // recargar la lista con los datos actualizados
+        cargar();
     };
 
     if (loading) return <div className="page"><p className="msg-empty">Cargando puestos...</p></div>;

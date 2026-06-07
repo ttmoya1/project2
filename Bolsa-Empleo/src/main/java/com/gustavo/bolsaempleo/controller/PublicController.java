@@ -17,20 +17,20 @@ public class PublicController {
     private final PuestoService puestoService;
     private final CaracteristicaService caracteristicaService;
 
-    // Los 5 puestos públicos más recientes
+
     @GetMapping("/puestos/recientes")
     public ResponseEntity<List<PuestoResponse>> getRecientes() {
         return ResponseEntity.ok(puestoService.getPublicosRecientes());
     }
 
-    // Buscar puestos por características
+
     @GetMapping("/puestos/buscar")
     public ResponseEntity<List<PuestoResponse>> buscar(
             @RequestParam List<Integer> caracteristicaIds) {
         return ResponseEntity.ok(puestoService.buscar(caracteristicaIds));
     }
 
-    // Árbol de características para el buscador
+
     @GetMapping("/caracteristicas")
     public ResponseEntity<List<CaracteristicaDTO>> getCaracteristicas() {
         return ResponseEntity.ok(caracteristicaService.getArbol());

@@ -10,6 +10,6 @@ public interface PostulacionRepository extends JpaRepository<Postulacion, Intege
 
     boolean existsByOferenteAndPuesto(Oferente oferente, Puesto puesto);
 
-    // Todos los que aplicaron a un puesto
+
     List<Postulacion> findByPuestoId(Integer puestoId);
 }

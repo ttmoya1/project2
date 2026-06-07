@@ -23,13 +23,13 @@ public class OferenteController {
 
     private final OferenteService oferenteService;
 
-    // Registro público de oferente
+
     @PostMapping("/api/public/oferente/registro")
     public ResponseEntity<Oferente> registrar(@RequestBody OferenteRequest request) {
         return ResponseEntity.ok(oferenteService.registrar(request));
     }
 
-    // Dashboard del oferente logueado
+
     @GetMapping("/api/oferente/dashboard")
     public ResponseEntity<CandidatoResponse> dashboard(Authentication auth) {
         Oferente oferente = oferenteService.getByUsuarioCorreo(auth.getName());
@@ -37,7 +37,7 @@ public class OferenteController {
         return ResponseEntity.ok(response);
     }
 
-    // Actualizar habilidades
+
     @PutMapping("/api/oferente/habilidades")
     public ResponseEntity<?> actualizarHabilidades(
             @RequestBody OferenteHabilidadRequest request,
@@ -46,7 +46,7 @@ public class OferenteController {
         return ResponseEntity.ok("Habilidades actualizadas");
     }
 
-    // Subir currículo PDF
+
     @PostMapping(value = "/api/oferente/curriculo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> subirCurriculo(
             @RequestParam("archivo") MultipartFile archivo,
@@ -55,7 +55,7 @@ public class OferenteController {
         return ResponseEntity.ok("Currículo subido correctamente");
     }
 
-    // Descargar/ver currículo propio
+
     @GetMapping("/api/oferente/curriculo")
     public ResponseEntity<Resource> verCurriculo(Authentication auth) {
         Resource resource = oferenteService.getCurriculo(auth.getName());
@@ -65,7 +65,7 @@ public class OferenteController {
                 .body(resource);
     }
 
-    // Descargar currículo de un candidato (para empresa)
+
     @GetMapping("/api/empresa/candidatos/{id}/curriculo")
     public ResponseEntity<Resource> verCurriculoCandidato(@PathVariable Integer id) {
         Resource resource = oferenteService.getCurriculoPorId(id);
@@ -75,7 +75,7 @@ public class OferenteController {
                 .body(resource);
     }
 
-    // Aplicar a un puesto
+
     @PostMapping("/api/oferente/postular/{puestoId}")
     public ResponseEntity<?> postular(
             @PathVariable Integer puestoId,

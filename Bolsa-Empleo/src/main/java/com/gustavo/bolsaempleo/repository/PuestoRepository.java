@@ -10,10 +10,10 @@ public interface PuestoRepository extends JpaRepository<Puesto, Integer> {
 
     List<Puesto> findTop5ByTipoAndActivoTrueOrderByFechaRegistroDesc(Puesto.TipoPuesto tipo);
 
-    // TODOS los puestos de la empresa (activos e inactivos) para el panel
+
     List<Puesto> findByEmpresaId(Integer empresaId);
 
-    // Solo los activos (para búsqueda pública)
+
     List<Puesto> findByEmpresaIdAndActivoTrue(Integer empresaId);
 
     @Query("""

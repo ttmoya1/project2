@@ -33,7 +33,7 @@ public class OferenteService {
 
     private static final String UPLOAD_DIR = "curriculos/";
 
-    // ── Registro ──────────────────────────────────────────────────────────────
+
     @Transactional
     public Oferente registrar(OferenteRequest request) {
         if (usuarioRepository.existsByCorreo(request.getCorreo()))
@@ -60,7 +60,7 @@ public class OferenteService {
         return oferenteRepository.save(oferente);
     }
 
-    // ── Obtener oferente logueado ──────────────────────────────────────────────
+
     @Transactional(readOnly = true)
     public Oferente getByUsuarioCorreo(String correo) {
         Usuario usuario = usuarioRepository.findByCorreo(correo)
@@ -69,7 +69,7 @@ public class OferenteService {
                 .orElseThrow(() -> new RuntimeException("Oferente no encontrado"));
     }
 
-    // ── Pendientes / Aprobar / Rechazar ───────────────────────────────────────
+
     public List<Oferente> getPendientes() {
         return oferenteRepository.findByAprobadoFalse();
     }
@@ -91,7 +91,7 @@ public class OferenteService {
         oferenteRepository.delete(oferente);
     }
 
-    // ── Habilidades ───────────────────────────────────────────────────────────
+
     @Transactional
     public void actualizarHabilidades(String correo, OferenteHabilidadRequest request) {
         Oferente oferente = getByUsuarioCorreo(correo);
@@ -110,7 +110,7 @@ public class OferenteService {
         }
     }
 
-    // ── Currículo PDF ─────────────────────────────────────────────────────────
+
     @Transactional
     public void subirCurriculo(String correo, MultipartFile archivo) {
         if (archivo.isEmpty())
@@ -158,8 +158,7 @@ public class OferenteService {
         }
     }
 
-    // ── Candidatos por puesto ─────────────────────────────────────────────────
-    // Devuelve TODOS los oferentes que se postularon al puesto
+
     public List<CandidatoResponse> buscarCandidatosPorPuesto(Integer puestoId) {
         puestoRepository.findById(puestoId)
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));

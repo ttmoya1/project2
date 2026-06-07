@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 const BASE_URL = "http://localhost:8080";
 const getToken = () => localStorage.getItem("token");
 
-// Aplana el árbol en una lista plana con nivel de profundidad
+
 function aplanarArbol(nodos, nivel = 0) {
     const resultado = [];
     for (const nodo of nodos) {
@@ -15,7 +15,7 @@ function aplanarArbol(nodos, nivel = 0) {
     return resultado;
 }
 
-// Renderiza un nodo del árbol visual recursivamente
+
 function NodoArbol({ nodo, nivel = 0 }) {
     const [expandido, setExpandido] = useState(true);
     const tieneHijos = nodo.hijos && nodo.hijos.length > 0;

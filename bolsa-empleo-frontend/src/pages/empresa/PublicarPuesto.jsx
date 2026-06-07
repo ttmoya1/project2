@@ -10,124 +10,165 @@ const NIVELES = [
     { valor: 5, label: "Máster" },
 ];
 
-// Componente recursivo — renderiza cualquier nivel de profundidad
-function FilaCaracteristica({ nodo, seleccionadas, onToggle, onNivel, profundidad = 0 }) {
+
+function GrupoRaiz({ nodo, seleccionadas, onToggle, onNivel }) {
+    const [expandido, setExpandido] = useState(true);
+    const hijos = nodo.hijos ?? [];
+
+    return (
+        <div style={{ marginBottom: 8 }}>
+            {/* Etiqueta del grupo raíz */}
+            <button
+                type="button"
+                onClick={() => setExpandido(e => !e)}
+                style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    width: "100%", background: "none", border: "none",
+                    cursor: "pointer", padding: "4px 8px",
+                    borderRadius: "var(--border-radius-sm)",
+                }}
+            >
+                <span style={{
+                    fontSize: 10, color: "var(--color-text-secondary)",
+                    lineHeight: 1, flexShrink: 0,
+                }}>
+                    {expandido ? "▼" : "▶"}
+                </span>
+                <span style={{
+                    fontSize: 11, fontWeight: 600,
+                    color: "var(--color-text-secondary)",
+                    textTransform: "uppercase", letterSpacing: "0.06em",
+                }}>
+                    {nodo.nombre}
+                </span>
+            </button>
+
+            {expandido && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 1, marginTop: 2 }}>
+                    {hijos.length > 0
+                        ? hijos.map(hijo => (
+                            <NodoSeleccionable
+                                key={hijo.id}
+                                nodo={hijo}
+                                seleccionadas={seleccionadas}
+                                onToggle={onToggle}
+                                onNivel={onNivel}
+                                profundidad={0}
+                            />
+                        ))
+                        : <NodoSeleccionable
+                            nodo={nodo}
+                            seleccionadas={seleccionadas}
+                            onToggle={onToggle}
+                            onNivel={onNivel}
+                            profundidad={0}
+                        />
+                    }
+                </div>
+            )}
+
+            <div style={{ height: 1, background: "var(--color-border-tertiary)", marginTop: 8 }} />
+        </div>
+    );
+}
+
+
+function NodoSeleccionable({ nodo, seleccionadas, onToggle, onNivel, profundidad }) {
     const [expandido, setExpandido] = useState(true);
     const tieneHijos = nodo.hijos && nodo.hijos.length > 0;
     const sel = seleccionadas[nodo.id];
-
-    // Solo los nodos hoja (sin hijos) son seleccionables
-    const esHoja = !tieneHijos;
+    const sangria = profundidad * 14;
 
     return (
         <div>
             <div style={{
                 display: "grid",
-                gridTemplateColumns: tieneHijos ? "20px minmax(0,1fr)" : "20px 16px minmax(0,1fr) auto",
+                gridTemplateColumns: "12px 16px minmax(0,1fr) auto",
                 alignItems: "center",
                 gap: 6,
                 padding: "5px 8px",
-                paddingLeft: `${8 + profundidad * 16}px`,
+                paddingLeft: `${8 + sangria}px`,
                 borderRadius: "var(--border-radius-md)",
                 background: sel ? "var(--color-background-info)" : "transparent",
                 transition: "background 0.15s",
             }}>
-                {/* Botón expand/collapse para nodos con hijos */}
+                {/* Botón expandir */}
                 {tieneHijos ? (
-                    <>
-                        <button
-                            type="button"
-                            onClick={() => setExpandido(e => !e)}
-                            style={{
-                                background: "none", border: "none", cursor: "pointer",
-                                padding: 0, fontSize: 9, color: "var(--color-text-secondary)",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                lineHeight: 1,
-                            }}
-                        >
-                            {expandido ? "▼" : "▶"}
-                        </button>
-                        <span style={{
-                            fontSize: profundidad === 0 ? 12 : 13,
-                            fontWeight: profundidad === 0 ? 600 : 500,
-                            color: profundidad === 0
-                                ? "var(--color-text-secondary)"
-                                : "var(--color-text-primary)",
-                            textTransform: profundidad === 0 ? "uppercase" : "none",
-                            letterSpacing: profundidad === 0 ? "0.05em" : "normal",
-                            userSelect: "none",
-                        }}>
-                            {nodo.nombre}
-                        </span>
-                    </>
+                    <button
+                        type="button"
+                        onClick={() => setExpandido(e => !e)}
+                        style={{
+                            background: "none", border: "none", cursor: "pointer",
+                            padding: 0, fontSize: 9, color: "var(--color-text-secondary)",
+                            lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                        }}
+                    >
+                        {expandido ? "▼" : "▶"}
+                    </button>
                 ) : (
-                    /* Nodo hoja: checkbox + label + selector de nivel */
-                    <>
-                        <span /> {/* espacio para alinear con el botón de expand */}
-                        <input
-                            type="checkbox"
-                            id={`c-${nodo.id}`}
-                            checked={!!sel}
-                            onChange={() => onToggle(nodo.id, nodo.nombre)}
-                            style={{
-                                cursor: "pointer",
-                                accentColor: "var(--color-border-info)",
-                                margin: 0, width: 14, height: 14,
-                            }}
-                        />
-                        <label
-                            htmlFor={`c-${nodo.id}`}
-                            style={{
-                                fontSize: 13,
-                                cursor: "pointer",
-                                color: sel ? "var(--color-text-info)" : "var(--color-text-primary)",
-                                fontWeight: sel ? 500 : 400,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                minWidth: 0,
-                            }}
-                            title={nodo.nombre}
-                        >
-                            {nodo.nombre}
-                        </label>
-                        {sel ? (
-                            <select
-                                value={sel.nivel}
-                                onChange={(e) => onNivel(nodo.id, Number(e.target.value))}
-                                style={{
-                                    fontSize: 12,
-                                    padding: "2px 4px",
-                                    border: "0.5px solid var(--color-border-info)",
-                                    borderRadius: "var(--border-radius-md)",
-                                    background: "var(--color-background-primary)",
-                                    color: "var(--color-text-info)",
-                                    cursor: "pointer",
-                                    width: 100,
-                                    flexShrink: 0,
-                                }}
-                            >
-                                {NIVELES.map((n) => (
-                                    <option key={n.valor} value={n.valor}>{n.label}</option>
-                                ))}
-                            </select>
-                        ) : (
-                            <span style={{ width: 100 }} />
-                        )}
-                    </>
+                    <span />
+                )}
+
+                {/* Checkbox */}
+                <input
+                    type="checkbox"
+                    id={`pc-${nodo.id}`}
+                    checked={!!sel}
+                    onChange={() => onToggle(nodo.id, nodo.nombre)}
+                    style={{
+                        cursor: "pointer", accentColor: "var(--color-border-info)",
+                        margin: 0, width: 14, height: 14,
+                    }}
+                />
+
+                {/* Nombre */}
+                <label
+                    htmlFor={`pc-${nodo.id}`}
+                    style={{
+                        fontSize: 13,
+                        cursor: "pointer",
+                        color: sel ? "var(--color-text-info)" : "var(--color-text-primary)",
+                        fontWeight: sel ? 500 : (tieneHijos ? 500 : 400),
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}
+                    title={nodo.nombre}
+                >
+                    {nodo.nombre}
+                </label>
+
+                {/* Selector de nivel */}
+                {sel ? (
+                    <select
+                        value={sel.nivel}
+                        onChange={(e) => onNivel(nodo.id, Number(e.target.value))}
+                        style={{
+                            fontSize: 12, padding: "2px 4px",
+                            border: "0.5px solid var(--color-border-info)",
+                            borderRadius: "var(--border-radius-md)",
+                            background: "var(--color-background-primary)",
+                            color: "var(--color-text-info)",
+                            cursor: "pointer", width: 100, flexShrink: 0,
+                        }}
+                    >
+                        {NIVELES.map(n => (
+                            <option key={n.valor} value={n.valor}>{n.label}</option>
+                        ))}
+                    </select>
+                ) : (
+                    <span style={{ width: 100 }} />
                 )}
             </div>
 
             {/* Hijos recursivos */}
             {tieneHijos && expandido && (
                 <div style={{
-                    borderLeft: profundidad === 0
-                        ? "none"
-                        : "1.5px solid var(--color-border-tertiary)",
-                    marginLeft: profundidad === 0 ? 0 : `${8 + profundidad * 16 + 10}px`,
+                    borderLeft: "1.5px solid var(--color-border-tertiary)",
+                    marginLeft: `${8 + sangria + 22}px`,
+                    paddingLeft: 6,
+                    marginBottom: 2,
                 }}>
                     {nodo.hijos.map(hijo => (
-                        <FilaCaracteristica
+                        <NodoSeleccionable
                             key={hijo.id}
                             nodo={hijo}
                             seleccionadas={seleccionadas}
@@ -242,12 +283,10 @@ export default function PublicarPuesto() {
             <form onSubmit={handleSubmit}>
                 <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 20, alignItems: "start" }}>
 
-                    {/* ── Columna izquierda ── */}
+                    {/* Columna izquierda */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
-
                         <div className="card">
                             <h2 style={{ fontSize: 15, marginBottom: 14 }}>Información del puesto</h2>
-
                             <div className="form-group" style={{ marginBottom: 12 }}>
                                 <label>Descripción *</label>
                                 <textarea
@@ -258,26 +297,20 @@ export default function PublicarPuesto() {
                                     style={{ resize: "vertical", width: "100%", boxSizing: "border-box" }}
                                 />
                             </div>
-
                             <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 12 }}>
                                 <div className="form-group">
                                     <label>Salario (₡) *</label>
                                     <input
-                                        type="number"
-                                        value={salario}
+                                        type="number" value={salario}
                                         onChange={(e) => setSalario(e.target.value)}
-                                        placeholder="800000"
-                                        min="0"
+                                        placeholder="800000" min="0"
                                         style={{ width: "100%", boxSizing: "border-box" }}
                                     />
                                 </div>
                                 <div className="form-group">
                                     <label>Tipo *</label>
-                                    <select
-                                        value={tipo}
-                                        onChange={(e) => setTipo(e.target.value)}
-                                        style={{ width: "100%", boxSizing: "border-box" }}
-                                    >
+                                    <select value={tipo} onChange={(e) => setTipo(e.target.value)}
+                                            style={{ width: "100%", boxSizing: "border-box" }}>
                                         <option value="PUBLICO">Público</option>
                                         <option value="PRIVADO">Privado</option>
                                     </select>
@@ -298,7 +331,6 @@ export default function PublicarPuesto() {
                                     {totalSeleccionadas} seleccionada{totalSeleccionadas !== 1 ? "s" : ""}
                                 </span>
                             </div>
-
                             {totalSeleccionadas === 0 ? (
                                 <p style={{ fontSize: 13, color: "var(--color-text-secondary)", textAlign: "center", padding: "12px 0" }}>
                                     Marcá características en el panel de la derecha
@@ -309,44 +341,20 @@ export default function PublicarPuesto() {
                                         const nivelLabel = NIVELES.find((n) => n.valor === nivel)?.label || nivel;
                                         return (
                                             <div key={id} style={{
-                                                display: "grid",
-                                                gridTemplateColumns: "minmax(0,1fr) auto auto",
-                                                alignItems: "center",
-                                                gap: 8,
-                                                padding: "6px 10px",
+                                                display: "grid", gridTemplateColumns: "minmax(0,1fr) auto auto",
+                                                alignItems: "center", gap: 8, padding: "6px 10px",
                                                 background: "var(--color-background-secondary)",
                                                 border: "0.5px solid var(--color-border-tertiary)",
                                                 borderRadius: "var(--border-radius-md)",
                                             }}>
-                                                <span style={{
-                                                    fontSize: 13,
-                                                    color: "var(--color-text-primary)",
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    whiteSpace: "nowrap",
-                                                    minWidth: 0,
-                                                }}>
+                                                <span style={{ fontSize: 13, color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
                                                     {nombre}
                                                 </span>
-                                                <span style={{
-                                                    fontSize: 11, fontWeight: 500,
-                                                    background: "var(--color-background-info)",
-                                                    color: "var(--color-text-info)",
-                                                    padding: "2px 8px", borderRadius: 999,
-                                                    whiteSpace: "nowrap",
-                                                }}>
+                                                <span style={{ fontSize: 11, fontWeight: 500, background: "var(--color-background-info)", color: "var(--color-text-info)", padding: "2px 8px", borderRadius: 999, whiteSpace: "nowrap" }}>
                                                     {nivelLabel}
                                                 </span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleQuitar(id)}
-                                                    title="Quitar"
-                                                    style={{
-                                                        background: "none", border: "none", cursor: "pointer",
-                                                        color: "var(--color-text-secondary)", fontSize: 16,
-                                                        lineHeight: 1, padding: "0 2px",
-                                                    }}
-                                                >
+                                                <button type="button" onClick={() => handleQuitar(id)} title="Quitar"
+                                                        style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-secondary)", fontSize: 16, lineHeight: 1, padding: "0 2px" }}>
                                                     ×
                                                 </button>
                                             </div>
@@ -358,18 +366,14 @@ export default function PublicarPuesto() {
 
                         {/* Botones */}
                         <div style={{ display: "flex", gap: 10 }}>
-                            <button
-                                type="submit"
-                                disabled={enviando}
-                                style={{
-                                    flex: 1, padding: "10px 0",
-                                    background: enviando ? "var(--color-text-secondary)" : "var(--color-primary)",
-                                    color: "#fff", border: "none",
-                                    borderRadius: "var(--border-radius-md)",
-                                    cursor: enviando ? "not-allowed" : "pointer",
-                                    fontWeight: 500, fontSize: 14,
-                                }}
-                            >
+                            <button type="submit" disabled={enviando} style={{
+                                flex: 1, padding: "10px 0",
+                                background: enviando ? "var(--color-text-secondary)" : "var(--color-primary)",
+                                color: "#fff", border: "none",
+                                borderRadius: "var(--border-radius-md)",
+                                cursor: enviando ? "not-allowed" : "pointer",
+                                fontWeight: 500, fontSize: 14,
+                            }}>
                                 {enviando ? "Publicando..." : "Publicar puesto"}
                             </button>
                             <button type="button" onClick={() => navigate("/empresa/puestos")} style={{ padding: "10px 20px" }}>
@@ -378,7 +382,7 @@ export default function PublicarPuesto() {
                         </div>
                     </div>
 
-                    {/* ── Columna derecha: árbol recursivo ── */}
+                    {/* Columna derecha: árbol */}
                     <div className="card" style={{ position: "sticky", top: 70, minWidth: 0 }}>
                         <div style={{ marginBottom: 12 }}>
                             <h2 style={{ fontSize: 15, margin: 0 }}>Características requeridas</h2>
@@ -386,24 +390,20 @@ export default function PublicarPuesto() {
                                 Marcá cada habilidad y elegí el nivel mínimo requerido.
                             </p>
                         </div>
-
                         {loading ? (
                             <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>Cargando...</p>
                         ) : arbol.length === 0 ? (
                             <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>No hay características disponibles.</p>
                         ) : (
-                            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                                {arbol.map((raiz) => (
-                                    <div key={raiz.id} style={{ marginBottom: 8 }}>
-                                        <FilaCaracteristica
-                                            nodo={raiz}
-                                            seleccionadas={seleccionadas}
-                                            onToggle={handleToggle}
-                                            onNivel={handleNivel}
-                                            profundidad={0}
-                                        />
-                                        <div style={{ height: 1, background: "var(--color-border-tertiary)", marginTop: 6 }} />
-                                    </div>
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                {arbol.map(raiz => (
+                                    <GrupoRaiz
+                                        key={raiz.id}
+                                        nodo={raiz}
+                                        seleccionadas={seleccionadas}
+                                        onToggle={handleToggle}
+                                        onNivel={handleNivel}
+                                    />
                                 ))}
                             </div>
                         )}

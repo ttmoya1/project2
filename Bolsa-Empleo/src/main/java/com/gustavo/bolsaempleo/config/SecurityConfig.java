@@ -60,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Permite tanto el dev server de React como el servidor de producción
+
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:8080",

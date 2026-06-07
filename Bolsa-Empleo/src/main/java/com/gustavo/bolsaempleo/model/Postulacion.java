@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "postulacion")  // FIX: el script SQL crea la tabla como "postulacion" sin 'es'
+@Table(name = "postulacion")
 public class Postulacion {
 
     @Id

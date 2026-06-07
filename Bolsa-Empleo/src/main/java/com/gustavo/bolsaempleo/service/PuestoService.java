@@ -60,7 +60,7 @@ public class PuestoService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         Empresa empresa = empresaRepository.findByUsuarioId(usuario.getId())
                 .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
-        // Traer TODOS los puestos (activos e inactivos) de la empresa
+
         return puestoRepository.findByEmpresaId(empresa.getId())
                 .stream().map(this::toResponse).toList();
     }
@@ -71,7 +71,7 @@ public class PuestoService {
                 .stream().map(this::toResponse).toList();
     }
 
-    // Cambia el puesto a PRIVADO (antes "desactivar")
+
     @Transactional
     public void hacerPrivado(Integer puestoId, String correo) {
         Puesto puesto = getPuestoVerificado(puestoId, correo);
@@ -79,7 +79,7 @@ public class PuestoService {
         puestoRepository.save(puesto);
     }
 
-    // Reactiva el puesto cambiándolo a PUBLICO
+
     @Transactional
     public void hacerPublico(Integer puestoId, String correo) {
         Puesto puesto = getPuestoVerificado(puestoId, correo);
@@ -87,7 +87,7 @@ public class PuestoService {
         puestoRepository.save(puesto);
     }
 
-    // Desactiva completamente el puesto (cuando ya se cubrió la vacante)
+
     @Transactional
     public void desactivar(Integer puestoId, String correo) {
         Puesto puesto = getPuestoVerificado(puestoId, correo);
@@ -141,13 +141,13 @@ public class PuestoService {
 
         Puesto puesto = getPuestoVerificado(puestoId, correoEmpresa);
 
-        // Actualizar campos básicos
+
         puesto.setDescripcion(request.getDescripcion());
         puesto.setSalario(request.getSalario());
         puesto.setTipo(Puesto.TipoPuesto.valueOf(request.getTipo()));
         puestoRepository.save(puesto);
 
-        // Reemplazar características: borrar las viejas y guardar las nuevas
+
         List<PuestoCaracteristica> anteriores =
                 puestoCaracteristicaRepository.findByPuestoId(puestoId);
         puestoCaracteristicaRepository.deleteAll(anteriores);

@@ -1,34 +1,34 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
-// Páginas públicas
+
 import Inicio from "./pages/public/Inicio";
 import Buscar from "./pages/public/Buscar";
 import RegistroEmpresa from "./pages/public/RegistroEmpresa";
 import RegistroOferente from "./pages/public/RegistroOferente";
 
-// Páginas empresa
+
 import DashboardEmpresa from "./pages/empresa/DashboardEmpresa";
 import MisPuestos from "./pages/empresa/MisPuestos";
 import PublicarPuesto from "./pages/empresa/PublicarPuesto";
 import Candidatos from "./pages/empresa/Candidatos";
 
-// Páginas oferente
+
 import DashboardOferente from "./pages/oferente/DashboardOferente";
 import MisHabilidades from "./pages/oferente/MisHabilidades";
 
-// Páginas admin
+
 import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import AprobarEmpresas from "./pages/admin/AprobarEmpresas";
 import AprobarOferentes from "./pages/admin/AprobarOferentes";
 import GestionCaracteristicas from "./pages/admin/GestionCaracteristicas";
 
-// Componentes
+
 import Navbar from "./components/Navbar";
 import MiCurriculo from "./pages/oferente/MiCurriculo.jsx";
 import DetallePuesto from "./pages/public/DetallePuesto.jsx";
 
-// Ruta protegida por rol
+
 function RutaProtegida({ children, rol }) {
     const { auth } = useAuth();
     if (!auth) return <Navigate to="/" />;

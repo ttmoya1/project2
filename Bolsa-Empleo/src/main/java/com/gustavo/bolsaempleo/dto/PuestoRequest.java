@@ -8,7 +8,7 @@ import java.util.List;
 public class PuestoRequest {
     private String descripcion;
     private BigDecimal salario;
-    private String tipo; // PUBLICO o PRIVADO
+    private String tipo;
     private List<CaracteristicaNivelDTO> caracteristicas;
 
     @Data

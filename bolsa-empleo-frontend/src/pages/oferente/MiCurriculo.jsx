@@ -56,7 +56,7 @@ export default function MiCurriculo() {
         }
     };
 
-    // Descarga el PDF con el token y lo abre en una nueva pestaña
+
     const handleVerPdf = async () => {
         setViendoPdf(true);
         setMsg({ tipo: "", texto: "" });
@@ -68,7 +68,7 @@ export default function MiCurriculo() {
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             window.open(url, "_blank");
-            // Liberar memoria después de un momento
+
             setTimeout(() => URL.revokeObjectURL(url), 10000);
         } catch {
             setMsg({ tipo: "error", texto: "No se pudo abrir el currículo." });

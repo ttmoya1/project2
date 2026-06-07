@@ -211,7 +211,7 @@ export default function Navbar() {
     );
 }
 
-/* Componente auxiliar para links del nav */
+
 function NavLink({ to, children }) {
     return (
         <Link to={to} style={{
