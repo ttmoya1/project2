@@ -42,20 +42,17 @@ public class EmpresaController {
         return ResponseEntity.ok(puestoService.getMisPuestos(auth.getName()));
     }
 
-
     @PutMapping("/api/empresa/puestos/{id}/privado")
     public ResponseEntity<?> hacerPrivado(@PathVariable Integer id, Authentication auth) {
         puestoService.hacerPrivado(id, auth.getName());
         return ResponseEntity.ok("Puesto cambiado a privado");
     }
 
-
     @PutMapping("/api/empresa/puestos/{id}/publico")
     public ResponseEntity<?> hacerPublico(@PathVariable Integer id, Authentication auth) {
         puestoService.hacerPublico(id, auth.getName());
         return ResponseEntity.ok("Puesto cambiado a público");
     }
-
 
     @PutMapping("/api/empresa/puestos/{id}/desactivar")
     public ResponseEntity<?> desactivar(@PathVariable Integer id, Authentication auth) {
@@ -74,8 +71,9 @@ public class EmpresaController {
             @PathVariable Integer oferenteId, Authentication auth) {
         return ResponseEntity.ok(oferenteService.getDetalleCandidato(oferenteId));
     }
+
     @PutMapping("/api/empresa/puestos/{id}")
-    public ResponseEntity<?> editarPuesto(
+    public ResponseEntity<PuestoResponse> editarPuesto(
             @PathVariable Integer id,
             @RequestBody PuestoRequest request,
             Authentication auth) {

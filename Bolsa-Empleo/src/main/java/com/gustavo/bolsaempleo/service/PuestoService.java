@@ -4,6 +4,7 @@ import com.gustavo.bolsaempleo.dto.PuestoRequest;
 import com.gustavo.bolsaempleo.dto.PuestoResponse;
 import com.gustavo.bolsaempleo.model.*;
 import com.gustavo.bolsaempleo.repository.*;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ public class PuestoService {
     private final CaracteristicaRepository caracteristicaRepository;
     private final PuestoCaracteristicaRepository puestoCaracteristicaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final EntityManager entityManager;
 
     @Transactional
     public Puesto publicar(String correoEmpresa, PuestoRequest request) {
@@ -71,7 +73,6 @@ public class PuestoService {
                 .stream().map(this::toResponse).toList();
     }
 
-
     @Transactional
     public void hacerPrivado(Integer puestoId, String correo) {
         Puesto puesto = getPuestoVerificado(puestoId, correo);
@@ -79,14 +80,12 @@ public class PuestoService {
         puestoRepository.save(puesto);
     }
 
-
     @Transactional
     public void hacerPublico(Integer puestoId, String correo) {
         Puesto puesto = getPuestoVerificado(puestoId, correo);
         puesto.setTipo(Puesto.TipoPuesto.PUBLICO);
         puestoRepository.save(puesto);
     }
-
 
     @Transactional
     public void desactivar(Integer puestoId, String correo) {
@@ -118,8 +117,9 @@ public class PuestoService {
         response.setActivo(puesto.getActivo());
         response.setFechaRegistro(puesto.getFechaRegistro());
 
+        List<PuestoCaracteristica> pcs = puestoCaracteristicaRepository.findByPuestoId(puesto.getId());
         List<PuestoResponse.CaracteristicaNivelDTO> cars = new ArrayList<>();
-        for (PuestoCaracteristica pc : puesto.getCaracteristicas()) {
+        for (PuestoCaracteristica pc : pcs) {
             PuestoResponse.CaracteristicaNivelDTO dto = new PuestoResponse.CaracteristicaNivelDTO();
             dto.setCaracteristicaId(pc.getCaracteristica().getId());
             dto.setCaracteristicaNombre(pc.getCaracteristica().getNombre());
@@ -136,21 +136,22 @@ public class PuestoService {
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
         return toResponse(puesto);
     }
+
     @Transactional
-    public Puesto editar(Integer puestoId, String correoEmpresa, PuestoRequest request) {
+    public PuestoResponse editar(Integer puestoId, String correoEmpresa, PuestoRequest request) {
+        getPuestoVerificado(puestoId, correoEmpresa);
 
-        Puesto puesto = getPuestoVerificado(puestoId, correoEmpresa);
+        puestoCaracteristicaRepository.deleteByPuestoId(puestoId);
+        entityManager.flush();
+        entityManager.clear();
 
+        Puesto puesto = puestoRepository.findById(puestoId)
+                .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
 
         puesto.setDescripcion(request.getDescripcion());
         puesto.setSalario(request.getSalario());
         puesto.setTipo(Puesto.TipoPuesto.valueOf(request.getTipo()));
         puestoRepository.save(puesto);
-
-
-        List<PuestoCaracteristica> anteriores =
-                puestoCaracteristicaRepository.findByPuestoId(puestoId);
-        puestoCaracteristicaRepository.deleteAll(anteriores);
 
         for (PuestoRequest.CaracteristicaNivelDTO c : request.getCaracteristicas()) {
             Caracteristica caracteristica = caracteristicaRepository
@@ -163,6 +164,10 @@ public class PuestoService {
             puestoCaracteristicaRepository.save(pc);
         }
 
-        return puesto;
+        entityManager.flush();
+        entityManager.clear();
+
+        return toResponse(puestoRepository.findById(puestoId)
+                .orElseThrow(() -> new RuntimeException("Puesto no encontrado")));
     }
 }
