@@ -20,7 +20,6 @@ public class PuestoService {
     private final PuestoCaracteristicaRepository puestoCaracteristicaRepository;
     private final UsuarioRepository usuarioRepository;
 
-    // Publicar nuevo puesto
     @Transactional
     public Puesto publicar(String correoEmpresa, PuestoRequest request) {
         Usuario usuario = usuarioRepository.findByCorreo(correoEmpresa)
@@ -48,7 +47,6 @@ public class PuestoService {
         return puesto;
     }
 
-    // 5 puestos públicos más recientes — FIX: @Transactional para que caracteristicas cargue
     @Transactional(readOnly = true)
     public List<PuestoResponse> getPublicosRecientes() {
         List<Puesto> puestos = puestoRepository
@@ -56,27 +54,48 @@ public class PuestoService {
         return puestos.stream().map(this::toResponse).toList();
     }
 
-    // Puestos de la empresa logueada — FIX: @Transactional
     @Transactional(readOnly = true)
     public List<PuestoResponse> getMisPuestos(String correo) {
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         Empresa empresa = empresaRepository.findByUsuarioId(usuario.getId())
                 .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
-        return puestoRepository.findByEmpresaIdAndActivoTrue(empresa.getId())
+        // Traer TODOS los puestos (activos e inactivos) de la empresa
+        return puestoRepository.findByEmpresaId(empresa.getId())
                 .stream().map(this::toResponse).toList();
     }
 
-    // Buscar puestos públicos por características — FIX: @Transactional
     @Transactional(readOnly = true)
     public List<PuestoResponse> buscar(List<Integer> caracteristicaIds) {
         return puestoRepository.buscarPorCaracteristicas(caracteristicaIds, Puesto.TipoPuesto.PUBLICO)
                 .stream().map(this::toResponse).toList();
     }
 
-    // Desactivar puesto
+    // Cambia el puesto a PRIVADO (antes "desactivar")
+    @Transactional
+    public void hacerPrivado(Integer puestoId, String correo) {
+        Puesto puesto = getPuestoVerificado(puestoId, correo);
+        puesto.setTipo(Puesto.TipoPuesto.PRIVADO);
+        puestoRepository.save(puesto);
+    }
+
+    // Reactiva el puesto cambiándolo a PUBLICO
+    @Transactional
+    public void hacerPublico(Integer puestoId, String correo) {
+        Puesto puesto = getPuestoVerificado(puestoId, correo);
+        puesto.setTipo(Puesto.TipoPuesto.PUBLICO);
+        puestoRepository.save(puesto);
+    }
+
+    // Desactiva completamente el puesto (cuando ya se cubrió la vacante)
     @Transactional
     public void desactivar(Integer puestoId, String correo) {
+        Puesto puesto = getPuestoVerificado(puestoId, correo);
+        puesto.setActivo(false);
+        puestoRepository.save(puesto);
+    }
+
+    private Puesto getPuestoVerificado(Integer puestoId, String correo) {
         Puesto puesto = puestoRepository.findById(puestoId)
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
         Usuario usuario = usuarioRepository.findByCorreo(correo)
@@ -84,13 +103,11 @@ public class PuestoService {
         Empresa empresa = empresaRepository.findByUsuarioId(usuario.getId())
                 .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
         if (!puesto.getEmpresa().getId().equals(empresa.getId())) {
-            throw new RuntimeException("No tienes permiso para desactivar este puesto");
+            throw new RuntimeException("No tenés permiso sobre este puesto");
         }
-        puesto.setActivo(false);
-        puestoRepository.save(puesto);
+        return puesto;
     }
 
-    // Convertir Puesto a PuestoResponse
     private PuestoResponse toResponse(Puesto puesto) {
         PuestoResponse response = new PuestoResponse();
         response.setId(puesto.getId());
@@ -115,11 +132,8 @@ public class PuestoService {
 
     @Transactional(readOnly = true)
     public PuestoResponse getById(Integer id) {
-
-        Puesto puesto = puestoRepository
-                .findById(id)
+        Puesto puesto = puestoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
-
         return toResponse(puesto);
     }
 }

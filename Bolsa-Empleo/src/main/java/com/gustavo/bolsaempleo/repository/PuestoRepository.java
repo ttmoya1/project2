@@ -8,16 +8,14 @@ import java.util.List;
 
 public interface PuestoRepository extends JpaRepository<Puesto, Integer> {
 
-    // Los 5 puestos públicos más recientes para la página principal
-    List<Puesto> findTop5ByTipoAndActivoTrueOrderByFechaRegistroDesc(
-            Puesto.TipoPuesto tipo
-    );
+    List<Puesto> findTop5ByTipoAndActivoTrueOrderByFechaRegistroDesc(Puesto.TipoPuesto tipo);
 
-    // Puestos activos de una empresa específica
+    // TODOS los puestos de la empresa (activos e inactivos) para el panel
+    List<Puesto> findByEmpresaId(Integer empresaId);
+
+    // Solo los activos (para búsqueda pública)
     List<Puesto> findByEmpresaIdAndActivoTrue(Integer empresaId);
 
-    // Buscar puestos públicos por características
-    // FIX: usar parámetro tipado en vez de string literal para el enum
     @Query("""
         SELECT DISTINCT p FROM Puesto p
         JOIN p.caracteristicas pc
