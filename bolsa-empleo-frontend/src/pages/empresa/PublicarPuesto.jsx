@@ -10,66 +10,133 @@ const NIVELES = [
     { valor: 5, label: "Máster" },
 ];
 
-function FilaCaracteristica({ nodo, seleccionadas, onToggle, onNivel }) {
+// Componente recursivo — renderiza cualquier nivel de profundidad
+function FilaCaracteristica({ nodo, seleccionadas, onToggle, onNivel, profundidad = 0 }) {
+    const [expandido, setExpandido] = useState(true);
+    const tieneHijos = nodo.hijos && nodo.hijos.length > 0;
     const sel = seleccionadas[nodo.id];
 
+    // Solo los nodos hoja (sin hijos) son seleccionables
+    const esHoja = !tieneHijos;
+
     return (
-        <div style={{
-            display: "grid",
-            gridTemplateColumns: "20px 1fr auto",
-            alignItems: "center",
-            gap: 8,
-            padding: "6px 8px",
-            borderRadius: "var(--border-radius-md)",
-            background: sel ? "var(--color-background-info)" : "transparent",
-            transition: "background 0.15s",
-            minWidth: 0,
-        }}>
-            <input
-                type="checkbox"
-                id={`c-${nodo.id}`}
-                checked={!!sel}
-                onChange={() => onToggle(nodo.id, nodo.nombre)}
-                style={{ cursor: "pointer", accentColor: "var(--color-border-info)", margin: 0 }}
-            />
-            <label
-                htmlFor={`c-${nodo.id}`}
-                style={{
-                    fontSize: 13,
-                    cursor: "pointer",
-                    color: sel ? "var(--color-text-info)" : "var(--color-text-primary)",
-                    fontWeight: sel ? 500 : 400,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    minWidth: 0,
-                }}
-                title={nodo.nombre}
-            >
-                {nodo.nombre}
-            </label>
-            {sel ? (
-                <select
-                    value={sel.nivel}
-                    onChange={(e) => onNivel(nodo.id, Number(e.target.value))}
-                    style={{
-                        fontSize: 12,
-                        padding: "2px 4px",
-                        border: "0.5px solid var(--color-border-info)",
-                        borderRadius: "var(--border-radius-md)",
-                        background: "var(--color-background-primary)",
-                        color: "var(--color-text-info)",
-                        cursor: "pointer",
-                        width: 100,
-                        flexShrink: 0,
-                    }}
-                >
-                    {NIVELES.map((n) => (
-                        <option key={n.valor} value={n.valor}>{n.label}</option>
+        <div>
+            <div style={{
+                display: "grid",
+                gridTemplateColumns: tieneHijos ? "20px minmax(0,1fr)" : "20px 16px minmax(0,1fr) auto",
+                alignItems: "center",
+                gap: 6,
+                padding: "5px 8px",
+                paddingLeft: `${8 + profundidad * 16}px`,
+                borderRadius: "var(--border-radius-md)",
+                background: sel ? "var(--color-background-info)" : "transparent",
+                transition: "background 0.15s",
+            }}>
+                {/* Botón expand/collapse para nodos con hijos */}
+                {tieneHijos ? (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setExpandido(e => !e)}
+                            style={{
+                                background: "none", border: "none", cursor: "pointer",
+                                padding: 0, fontSize: 9, color: "var(--color-text-secondary)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                lineHeight: 1,
+                            }}
+                        >
+                            {expandido ? "▼" : "▶"}
+                        </button>
+                        <span style={{
+                            fontSize: profundidad === 0 ? 12 : 13,
+                            fontWeight: profundidad === 0 ? 600 : 500,
+                            color: profundidad === 0
+                                ? "var(--color-text-secondary)"
+                                : "var(--color-text-primary)",
+                            textTransform: profundidad === 0 ? "uppercase" : "none",
+                            letterSpacing: profundidad === 0 ? "0.05em" : "normal",
+                            userSelect: "none",
+                        }}>
+                            {nodo.nombre}
+                        </span>
+                    </>
+                ) : (
+                    /* Nodo hoja: checkbox + label + selector de nivel */
+                    <>
+                        <span /> {/* espacio para alinear con el botón de expand */}
+                        <input
+                            type="checkbox"
+                            id={`c-${nodo.id}`}
+                            checked={!!sel}
+                            onChange={() => onToggle(nodo.id, nodo.nombre)}
+                            style={{
+                                cursor: "pointer",
+                                accentColor: "var(--color-border-info)",
+                                margin: 0, width: 14, height: 14,
+                            }}
+                        />
+                        <label
+                            htmlFor={`c-${nodo.id}`}
+                            style={{
+                                fontSize: 13,
+                                cursor: "pointer",
+                                color: sel ? "var(--color-text-info)" : "var(--color-text-primary)",
+                                fontWeight: sel ? 500 : 400,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                minWidth: 0,
+                            }}
+                            title={nodo.nombre}
+                        >
+                            {nodo.nombre}
+                        </label>
+                        {sel ? (
+                            <select
+                                value={sel.nivel}
+                                onChange={(e) => onNivel(nodo.id, Number(e.target.value))}
+                                style={{
+                                    fontSize: 12,
+                                    padding: "2px 4px",
+                                    border: "0.5px solid var(--color-border-info)",
+                                    borderRadius: "var(--border-radius-md)",
+                                    background: "var(--color-background-primary)",
+                                    color: "var(--color-text-info)",
+                                    cursor: "pointer",
+                                    width: 100,
+                                    flexShrink: 0,
+                                }}
+                            >
+                                {NIVELES.map((n) => (
+                                    <option key={n.valor} value={n.valor}>{n.label}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <span style={{ width: 100 }} />
+                        )}
+                    </>
+                )}
+            </div>
+
+            {/* Hijos recursivos */}
+            {tieneHijos && expandido && (
+                <div style={{
+                    borderLeft: profundidad === 0
+                        ? "none"
+                        : "1.5px solid var(--color-border-tertiary)",
+                    marginLeft: profundidad === 0 ? 0 : `${8 + profundidad * 16 + 10}px`,
+                }}>
+                    {nodo.hijos.map(hijo => (
+                        <FilaCaracteristica
+                            key={hijo.id}
+                            nodo={hijo}
+                            seleccionadas={seleccionadas}
+                            onToggle={onToggle}
+                            onNivel={onNivel}
+                            profundidad={profundidad + 1}
+                        />
                     ))}
-                </select>
-            ) : (
-                <span style={{ width: 100 }} />
+                </div>
             )}
         </div>
     );
@@ -178,7 +245,6 @@ export default function PublicarPuesto() {
                     {/* ── Columna izquierda ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
 
-                        {/* Datos del puesto */}
                         <div className="card">
                             <h2 style={{ fontSize: 15, marginBottom: 14 }}>Información del puesto</h2>
 
@@ -229,8 +295,8 @@ export default function PublicarPuesto() {
                                     color: totalSeleccionadas > 0 ? "var(--color-text-info)" : "var(--color-text-secondary)",
                                     padding: "2px 10px", borderRadius: 999,
                                 }}>
-                  {totalSeleccionadas} seleccionada{totalSeleccionadas !== 1 ? "s" : ""}
-                </span>
+                                    {totalSeleccionadas} seleccionada{totalSeleccionadas !== 1 ? "s" : ""}
+                                </span>
                             </div>
 
                             {totalSeleccionadas === 0 ? (
@@ -252,16 +318,16 @@ export default function PublicarPuesto() {
                                                 border: "0.5px solid var(--color-border-tertiary)",
                                                 borderRadius: "var(--border-radius-md)",
                                             }}>
-                        <span style={{
-                            fontSize: 13,
-                            color: "var(--color-text-primary)",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            minWidth: 0,
-                        }}>
-                          {nombre}
-                        </span>
+                                                <span style={{
+                                                    fontSize: 13,
+                                                    color: "var(--color-text-primary)",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    whiteSpace: "nowrap",
+                                                    minWidth: 0,
+                                                }}>
+                                                    {nombre}
+                                                </span>
                                                 <span style={{
                                                     fontSize: 11, fontWeight: 500,
                                                     background: "var(--color-background-info)",
@@ -269,8 +335,8 @@ export default function PublicarPuesto() {
                                                     padding: "2px 8px", borderRadius: 999,
                                                     whiteSpace: "nowrap",
                                                 }}>
-                          {nivelLabel}
-                        </span>
+                                                    {nivelLabel}
+                                                </span>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleQuitar(id)}
@@ -312,7 +378,7 @@ export default function PublicarPuesto() {
                         </div>
                     </div>
 
-                    {/* ── Columna derecha: árbol ── */}
+                    {/* ── Columna derecha: árbol recursivo ── */}
                     <div className="card" style={{ position: "sticky", top: 70, minWidth: 0 }}>
                         <div style={{ marginBottom: 12 }}>
                             <h2 style={{ fontSize: 15, margin: 0 }}>Características requeridas</h2>
@@ -326,33 +392,17 @@ export default function PublicarPuesto() {
                         ) : arbol.length === 0 ? (
                             <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>No hay características disponibles.</p>
                         ) : (
-                            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                                {arbol.map((padre) => (
-                                    <div key={padre.id}>
-                                        {/* Etiqueta del grupo */}
-                                        <p style={{
-                                            fontSize: 11, fontWeight: 500,
-                                            textTransform: "uppercase", letterSpacing: "0.06em",
-                                            color: "var(--color-text-secondary)",
-                                            marginBottom: 4, paddingLeft: 4,
-                                        }}>
-                                            {padre.nombre}
-                                        </p>
-
-                                        {/* Hijos o el padre mismo si no tiene hijos */}
-                                        <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                                            {(padre.hijos && padre.hijos.length > 0 ? padre.hijos : [padre]).map((item) => (
-                                                <FilaCaracteristica
-                                                    key={item.id}
-                                                    nodo={item}
-                                                    seleccionadas={seleccionadas}
-                                                    onToggle={handleToggle}
-                                                    onNivel={handleNivel}
-                                                />
-                                            ))}
-                                        </div>
-
-                                        <div style={{ height: 1, background: "var(--color-border-tertiary)", marginTop: 8 }} />
+                            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                {arbol.map((raiz) => (
+                                    <div key={raiz.id} style={{ marginBottom: 8 }}>
+                                        <FilaCaracteristica
+                                            nodo={raiz}
+                                            seleccionadas={seleccionadas}
+                                            onToggle={handleToggle}
+                                            onNivel={handleNivel}
+                                            profundidad={0}
+                                        />
+                                        <div style={{ height: 1, background: "var(--color-border-tertiary)", marginTop: 6 }} />
                                     </div>
                                 ))}
                             </div>

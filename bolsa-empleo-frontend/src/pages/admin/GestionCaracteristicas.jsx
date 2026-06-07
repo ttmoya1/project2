@@ -44,7 +44,7 @@ function NodoArbol({ nodo, nivel = 0 }) {
                     <span style={{ marginRight: "6px", width: "20px", display: "inline-block" }} />
                 )}
                 <span style={{ fontSize: nivel === 0 ? "11px" : "13px" }}>
-          {nivel === 0 ? "📂" : "•"}
+          {nivel === 0 ? "" : "•"}
         </span>
                 <span style={{
                     marginLeft: "6px", fontSize: "14px",

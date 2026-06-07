@@ -74,4 +74,11 @@ public class EmpresaController {
             @PathVariable Integer oferenteId, Authentication auth) {
         return ResponseEntity.ok(oferenteService.getDetalleCandidato(oferenteId));
     }
+    @PutMapping("/api/empresa/puestos/{id}")
+    public ResponseEntity<?> editarPuesto(
+            @PathVariable Integer id,
+            @RequestBody PuestoRequest request,
+            Authentication auth) {
+        return ResponseEntity.ok(puestoService.editar(id, auth.getName(), request));
+    }
 }

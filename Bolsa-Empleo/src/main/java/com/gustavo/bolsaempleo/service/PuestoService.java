@@ -136,4 +136,33 @@ public class PuestoService {
                 .orElseThrow(() -> new RuntimeException("Puesto no encontrado"));
         return toResponse(puesto);
     }
+    @Transactional
+    public Puesto editar(Integer puestoId, String correoEmpresa, PuestoRequest request) {
+
+        Puesto puesto = getPuestoVerificado(puestoId, correoEmpresa);
+
+        // Actualizar campos básicos
+        puesto.setDescripcion(request.getDescripcion());
+        puesto.setSalario(request.getSalario());
+        puesto.setTipo(Puesto.TipoPuesto.valueOf(request.getTipo()));
+        puestoRepository.save(puesto);
+
+        // Reemplazar características: borrar las viejas y guardar las nuevas
+        List<PuestoCaracteristica> anteriores =
+                puestoCaracteristicaRepository.findByPuestoId(puestoId);
+        puestoCaracteristicaRepository.deleteAll(anteriores);
+
+        for (PuestoRequest.CaracteristicaNivelDTO c : request.getCaracteristicas()) {
+            Caracteristica caracteristica = caracteristicaRepository
+                    .findById(c.getCaracteristicaId())
+                    .orElseThrow(() -> new RuntimeException("Característica no encontrada"));
+            PuestoCaracteristica pc = new PuestoCaracteristica();
+            pc.setPuesto(puesto);
+            pc.setCaracteristica(caracteristica);
+            pc.setNivelRequerido(c.getNivelRequerido());
+            puestoCaracteristicaRepository.save(pc);
+        }
+
+        return puesto;
+    }
 }
